@@ -14,7 +14,8 @@ public class Gravity : GLMonoBehaviour
     // Physics
     private float angularVelocity;
 
-    void Start() {
+    void Start()
+    {
         FindAffectedObjects();
     }
     void Update()
@@ -36,6 +37,10 @@ public class Gravity : GLMonoBehaviour
         }
     }
 
+    public void SetFrequency(float freq) {
+        this.frequency = freq;
+    }
+
     private void Attract(GameObject body)
     {
 
@@ -49,7 +54,7 @@ public class Gravity : GLMonoBehaviour
             rb.AddForce(centripetalForce.WithZ(0));
 
             // Coriolis force
-            Vector3 rotationVector = Vector3.back * angularVelocity;
+            Vector3 rotationVector = Vector3.forward * angularVelocity;
             Vector3 velocityVector = rb.velocity;
             Vector3 coriolisForce = -2 * rb.mass * Vector3.Cross(rotationVector, velocityVector);
             rb.AddForce(coriolisForce);

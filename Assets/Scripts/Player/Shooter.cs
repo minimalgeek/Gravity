@@ -19,4 +19,8 @@ public class Shooter : GLMonoBehaviour
             rb.AddForce(direction * bulletImpulse, ForceMode2D.Impulse);
         }
     }
+
+    public void SetBulletImpulse(float impulse) {
+        this.bulletImpulse = impulse;
+    }
 }
