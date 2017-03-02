@@ -8,7 +8,7 @@ public class CharacterController : GLMonoBehaviour
     private Rigidbody2D rb;
 
     public float jumpForce = 10f;
-	public float moveSpeed = 5f;
+    public float moveSpeed = 5f;
     public Vector3 worldUp;
     private Gravity worldCenter;
 
@@ -16,27 +16,32 @@ public class CharacterController : GLMonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         worldCenter = FindObjectOfType(typeof(Gravity)) as Gravity;
-        //worldUp.Normalize();
     }
 
     void FixedUpdate()
     {
-        Vector2 moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
-        rb.AddRelativeForce(moveDirection*moveSpeed, ForceMode2D.Force);
+        Vector2 moveVector = new Vector2(Input.GetAxis("Horizontal"), 0) * moveSpeed;
+        rb.AddRelativeForce(moveVector, ForceMode2D.Force);
 
+        /*
+        Vector2 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        localVelocity.x = Input.GetAxis("Horizontal") * moveSpeed;
+        rb.velocity = transform.TransformDirection(localVelocity);
+        */
         if (Input.GetKeyDown(KeyCode.Space))
         {
             rb.AddForce(this.transform.up * jumpForce, ForceMode2D.Impulse);
         }
-
-        this.transform.up = worldCenter.transform.position - this.transform.position;
     }
 
-    public void SetJumpForce(float force) {
+    public void SetJumpForce(float force)
+    {
         this.jumpForce = force;
     }
 
-    public void SetMoveSpeed(float speed) {
+    public void SetMoveSpeed(float speed)
+    {
         this.moveSpeed = speed;
     }
+
 }

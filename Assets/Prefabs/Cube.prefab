@@ -37,8 +37,9 @@ GameObject:
   - component: {fileID: 4646673557243540}
   - component: {fileID: 212786835184572374}
   - component: {fileID: 50533940403664034}
-  - component: {fileID: 114688933367318710}
   - component: {fileID: 58682615085030814}
+  - component: {fileID: 114688933367318710}
+  - component: {fileID: 114369936273304604}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Affected
@@ -107,6 +108,17 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.83
+--- !u!114 &114369936273304604
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1847007308799620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 445480490c1473b41a3cebd13890f2b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114476969429747314
 MonoBehaviour:
   m_ObjectHideFlags: 1

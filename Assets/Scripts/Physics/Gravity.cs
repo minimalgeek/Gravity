@@ -51,13 +51,15 @@ public class Gravity : GLMonoBehaviour
             Vector3 gravityUp = t.position - transform.position;
             // Centripetal force
             Vector3 centripetalForce = rb.mass * gravityUp.magnitude * Mathf.Pow(angularVelocity, 2) * gravityUp;
+            Debug.DrawLine(t.position, t.position + centripetalForce, Color.red);
             rb.AddForce(centripetalForce.WithZ(0));
 
             // Coriolis force
             Vector3 rotationVector = Vector3.forward * angularVelocity;
             Vector3 velocityVector = rb.velocity;
             Vector3 coriolisForce = -2 * rb.mass * Vector3.Cross(rotationVector, velocityVector);
-            rb.AddForce(coriolisForce);
+            Debug.DrawLine(t.position, t.position + coriolisForce, Color.green);
+            rb.AddForce(coriolisForce.WithZ(0));
         }
     }
 }
