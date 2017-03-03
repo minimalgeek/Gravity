@@ -4,12 +4,11 @@ using UnityEngine;
 using Gamelogic.Extensions;
 using System;
 
-public class Gravity : GLMonoBehaviour
+public class Gravity : Singleton<Gravity>
 {
-    private const string AFFECTED_TAG = "Affected";
     [TooltipAttribute("Rotation per second")]
     public float frequency;
-    private GameObject[] affectedObjects;
+    private Rigidbody2D[] affectedObjects;
 
     // Physics
     private float angularVelocity;
@@ -25,41 +24,37 @@ public class Gravity : GLMonoBehaviour
 
     private void FindAffectedObjects()
     {
-        affectedObjects = GameObject.FindGameObjectsWithTag(AFFECTED_TAG);
+        affectedObjects = GameObject.FindObjectsOfType<Rigidbody2D>();
     }
 
     void FixedUpdate()
     {
         angularVelocity = 2 * Mathf.PI * frequency;
-        foreach (GameObject g in affectedObjects)
+        foreach (Rigidbody2D rb in affectedObjects)
         {
-            Attract(g);
+            Attract(rb);
         }
     }
 
-    public void SetFrequency(float freq) {
+    public void SetFrequency(float freq)
+    {
         this.frequency = freq;
     }
 
-    private void Attract(GameObject body)
+    private void Attract(Rigidbody2D body)
     {
+        Transform t = body.transform;
+        Vector3 gravityUp = t.position - transform.position;
+        // Centripetal force
+        Vector3 centripetalForce = body.mass * gravityUp.magnitude * Mathf.Pow(angularVelocity, 2) * gravityUp;
+        Debug.DrawLine(t.position, t.position + centripetalForce, Color.red);
+        body.AddForce(centripetalForce.WithZ(0));
 
-        Rigidbody2D rb = body.GetComponent<Rigidbody2D>();
-        if (rb)
-        {
-            Transform t = body.transform;
-            Vector3 gravityUp = t.position - transform.position;
-            // Centripetal force
-            Vector3 centripetalForce = rb.mass * gravityUp.magnitude * Mathf.Pow(angularVelocity, 2) * gravityUp;
-            Debug.DrawLine(t.position, t.position + centripetalForce, Color.red);
-            rb.AddForce(centripetalForce.WithZ(0));
-
-            // Coriolis force
-            Vector3 rotationVector = Vector3.forward * angularVelocity;
-            Vector3 velocityVector = rb.velocity;
-            Vector3 coriolisForce = -2 * rb.mass * Vector3.Cross(rotationVector, velocityVector);
-            Debug.DrawLine(t.position, t.position + coriolisForce, Color.green);
-            rb.AddForce(coriolisForce.WithZ(0));
-        }
+        // Coriolis force
+        Vector3 rotationVector = Vector3.forward * angularVelocity;
+        Vector3 velocityVector = body.velocity;
+        Vector3 coriolisForce = -2 * body.mass * Vector3.Cross(rotationVector, velocityVector);
+        Debug.DrawLine(t.position, t.position + coriolisForce, Color.green);
+        body.AddForce(coriolisForce.WithZ(0));
     }
 }

@@ -7,6 +7,7 @@ namespace UnityStandardAssets._2D
     {
         public Transform target;
         public float damping = 1;
+        public float rotationSpeed = 3;
         public float lookAheadFactor = 3;
         public float lookAheadReturnSpeed = 0.5f;
         public float lookAheadMoveThreshold = 0.1f;
@@ -29,13 +30,14 @@ namespace UnityStandardAssets._2D
         private void Update()
         {
             // only update lookahead pos if accelerating or changed direction
-            float xMoveDelta = (target.position - m_LastTargetPosition).x;
+            Vector3 diff = (target.position - m_LastTargetPosition);
+            float moveDelta = diff.x + diff.y;
 
-            bool updateLookAheadTarget = Mathf.Abs(xMoveDelta) > lookAheadMoveThreshold;
+            bool updateLookAheadTarget = Mathf.Abs(moveDelta) > lookAheadMoveThreshold;
 
             if (updateLookAheadTarget)
             {
-                m_LookAheadPos = lookAheadFactor*Vector3.right*Mathf.Sign(xMoveDelta);
+                m_LookAheadPos = lookAheadFactor*Vector3.right*Mathf.Sign(moveDelta);
             }
             else
             {
@@ -46,6 +48,9 @@ namespace UnityStandardAssets._2D
             Vector3 newPos = Vector3.SmoothDamp(transform.position, aheadTargetPos, ref m_CurrentVelocity, damping);
 
             transform.position = newPos;
+
+            Quaternion newRotation = Quaternion.Lerp(transform.rotation, target.rotation, Time.deltaTime * rotationSpeed);
+            transform.rotation = newRotation;
 
             m_LastTargetPosition = target.position;
         }
