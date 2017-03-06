@@ -426,7 +426,7 @@ MonoBehaviour:
   damping: 0.5
   rotationSpeed: 3
   lookAheadFactor: 3
-  lookAheadReturnSpeed: 0.5
+  lookAheadReturnSpeed: 1
   lookAheadMoveThreshold: 5
 --- !u!1 &451306725
 GameObject:
