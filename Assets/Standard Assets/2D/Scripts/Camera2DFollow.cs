@@ -29,6 +29,9 @@ namespace UnityStandardAssets._2D
         // Update is called once per frame
         private void Update()
         {
+            if (!target) {
+                return;
+            }
             // only update lookahead pos if accelerating or changed direction
             Vector3 diff = (target.position - m_LastTargetPosition);
             float moveDelta = diff.x + diff.y;
