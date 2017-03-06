@@ -13,6 +13,11 @@ public class Gravity : Singleton<Gravity>
     // Physics
     private float angularVelocity;
 
+    public void SetFrequency(float freq)
+    {
+        this.frequency = freq;
+    }
+
     void Start()
     {
         FindAffectedObjects();
@@ -41,20 +46,15 @@ public class Gravity : Singleton<Gravity>
         }
     }*/
 
-    public void SetFrequency(float freq)
-    {
-        this.frequency = freq;
-    }
-
     private void Attract(Rigidbody2D body)
     {
         Transform t = body.transform;
         Vector3 gravityUp = t.position - transform.position;
         // Centripetal force
-        //Vector3 gravityUpNormal = gravityUp;
-        //gravityUpNormal.Normalize();
-        //Vector3 centripetalForce = body.mass * gravityUp.magnitude * Mathf.Pow(angularVelocity, 2) * gravityUpNormal;
-        Vector3 centripetalForce = body.mass * gravityUp * Mathf.Pow(angularVelocity, 2);
+        Vector3 gravityUpNormal = gravityUp;
+        gravityUpNormal.Normalize();
+        Vector3 centripetalForce = body.mass * gravityUp.magnitude * Mathf.Pow(angularVelocity, 2) * gravityUpNormal;
+        //Vector3 centripetalForce = body.mass * gravityUp * Mathf.Pow(angularVelocity, 2);
         Debug.DrawLine(t.position, t.position + centripetalForce, Color.red);
         body.AddForce(centripetalForce);
 

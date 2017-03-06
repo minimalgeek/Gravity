@@ -5,34 +5,12 @@ using Gamelogic.Extensions;
 
 public class CharacterController : GLMonoBehaviour
 {
-    private Rigidbody2D rb;
-
     public float jumpForce = 10f;
     public float moveSpeed = 5f;
-    public Vector3 worldUp;
-    private Gravity worldCenter;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        worldCenter = FindObjectOfType(typeof(Gravity)) as Gravity;
-    }
-
-    void FixedUpdate()
-    {
-        Vector2 moveVector = new Vector2(Input.GetAxis("Horizontal"), 0) * moveSpeed;
-        rb.AddRelativeForce(moveVector, ForceMode2D.Force);
-
-        /*
-        Vector2 localVelocity = transform.InverseTransformDirection(rb.velocity);
-        localVelocity.x = Input.GetAxis("Horizontal") * moveSpeed;
-        rb.velocity = transform.TransformDirection(localVelocity);
-        */
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            rb.AddForce(this.transform.up * jumpForce, ForceMode2D.Impulse);
-        }
-    }
+    public float slowDownSpeed = 2f;
+    private Rigidbody2D rb;
+    private GroundController groundController;
+    private bool grounded;
 
     public void SetJumpForce(float force)
     {
@@ -44,4 +22,39 @@ public class CharacterController : GLMonoBehaviour
         this.moveSpeed = speed;
     }
 
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        groundController = GetComponentInChildren<GroundController>();
+    }
+
+    void OnEnable()
+    {
+        groundController.TriggerStay += (() => grounded = true);
+        groundController.TriggerLeave += (() => grounded = false);
+    }
+
+    void FixedUpdate()
+    {
+        if (grounded)
+        {
+            if (Input.GetAxisRaw("Horizontal") == 0)
+            {
+                Vector2 localVelocity = transform.InverseTransformDirection(rb.velocity);
+                localVelocity = Vector2.Lerp(localVelocity, Vector2.zero, Time.deltaTime * slowDownSpeed);
+                rb.velocity = transform.TransformDirection(localVelocity);
+            }
+            else
+            {
+                Vector2 localVelocity = transform.InverseTransformDirection(rb.velocity);
+                localVelocity.x = Input.GetAxis("Horizontal") * moveSpeed;
+                rb.velocity = transform.TransformDirection(localVelocity);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                rb.AddForce(this.transform.up * jumpForce, ForceMode2D.Impulse);
+            }
+        }
+    }
 }
