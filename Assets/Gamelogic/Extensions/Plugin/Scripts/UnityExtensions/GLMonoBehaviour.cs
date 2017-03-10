@@ -133,7 +133,7 @@ namespace Gamelogic.Extensions
 		{
 			var newObj = (GameObject)Object.Instantiate(prefab);
 
-			newObj.transform.parent = newObj.transform;
+			newObj.transform.parent = root.transform;
 			newObj.transform.localPosition = localPosition;
 			newObj.transform.localRotation = localRotation;
 			newObj.transform.ResetScale();
