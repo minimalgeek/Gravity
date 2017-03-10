@@ -9,7 +9,7 @@ public class CharacterController : GLMonoBehaviour
     public float moveSpeed = 5f;
     public float slowDownSpeed = 2f;
     private Rigidbody2D rb;
-    private GroundController groundController;
+    private CollisionDetector groundController;
     private bool grounded;
 
     public void SetJumpForce(float force)
@@ -25,7 +25,7 @@ public class CharacterController : GLMonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        groundController = GetComponentInChildren<GroundController>();
+        groundController = GetComponentInChildren<CollisionDetector>();
     }
 
     void OnEnable()

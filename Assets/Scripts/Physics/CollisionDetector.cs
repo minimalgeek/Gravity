@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Gamelogic.Extensions;
 
-public class GroundController : GLMonoBehaviour
+public class CollisionDetector : GLMonoBehaviour
 {
 
     public delegate void TriggerAction();

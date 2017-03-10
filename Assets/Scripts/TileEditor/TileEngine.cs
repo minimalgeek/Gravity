@@ -8,7 +8,6 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class TileEngine : GLMonoBehaviour
 {
-    private Dictionary<Vector2, Tile> map;
     public List<GameObject> prefabList;
     public GameObject tileRoot;
     private GameObject currentPrefab;
