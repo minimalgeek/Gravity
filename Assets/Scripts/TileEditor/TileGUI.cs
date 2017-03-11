@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections;
 using Gamelogic.Extensions;
+using System.Collections.Generic;
 
 public class TileGUI : EditorWindow
 {
@@ -205,6 +206,7 @@ public class TileGUI : EditorWindow
                         {
                             Vector3 pos = ScreenToWorldSnap(e.mousePosition);
                             GameObject newObject = Instantiate(block, pos, GetRotator(pos), rootTransform);
+                            Undo.RegisterCreatedObjectUndo(newObject, "Placed single segment");
                             break;
                         }
                     case PlacingModes.Arc:
@@ -325,14 +327,19 @@ public class TileGUI : EditorWindow
     // Place a ring from a given point
     void PlaceRing(Vector3 pos)
     {
-        int angularGridDensity = GetAngularGridDensity(pos.magnitude);
+        float R = pos.magnitude;
+        int angularGridDensity = GetAngularGridDensity(R);
         float deltaAngle = 360f / angularGridDensity;
         Quaternion rotator = Quaternion.Euler(0, 0, deltaAngle);
+
+        GameObject ringRoot = new GameObject("Ring " + R);
+        ringRoot.transform.parent = rootTransform;
         for (int i = 0; i < angularGridDensity; i++)
         {
             pos = rotator * pos;
-            GameObject newObject = Instantiate(block, pos, GetRotator(pos), rootTransform);
+            GameObject newObject = Instantiate(block, pos, GetRotator(pos), ringRoot.transform);
         }
+        Undo.RegisterCreatedObjectUndo(ringRoot, "Placed ring " + R);
     }
 
     // Place a ring from a given point
@@ -341,16 +348,20 @@ public class TileGUI : EditorWindow
         float R1 = from.magnitude;
         float R2 = to.magnitude;
         float deltaR = (R2 > R1 ? 1f : -1f) / radialGridDensity;
-        int n = Mathf.FloorToInt(Mathf.Abs(R2 - R1) * radialGridDensity);
+        Debug.Log(Mathf.Abs(R2 - R1) * radialGridDensity);
+        int n = Mathf.FloorToInt(Mathf.Abs(R2 - R1) * radialGridDensity + 0.001f) + 1;
         float r = R1;
         Vector3 fromDir = Vector3.Normalize(from);
         Quaternion rotator = GetRotator(from);
 
+        GameObject wallRoot = new GameObject("Wall");
+        wallRoot.transform.parent = rootTransform;
         for (int i = 0; i < n; ++i)
         {
-            GameObject newObject = Instantiate(block, fromDir * r, rotator, rootTransform);
+            GameObject newObject = Instantiate(block, fromDir * r, rotator, wallRoot.transform);
             r += deltaR;
         }
+        Undo.RegisterCreatedObjectUndo(wallRoot, "Placed wall");
     }
 
     void CreateLevelRoot()
