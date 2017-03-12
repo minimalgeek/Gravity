@@ -10,8 +10,35 @@ public class TileGUI : EditorWindow
     GameObject root;
     Transform rootTransform;
 
-    GameObject block;
+    TileEditorCatalog _catalog;
+    public TileEditorCatalog Catalog
+    {
+        get { return _catalog; }
+        set { _catalog = value; _catalogLoaded = value != null; PopulateStock(); }
+    }
+    bool _catalogLoaded = false;
+    public bool CatalogLoaded
+    {
+        get { return _catalogLoaded; }
+    }
+    int catalogIconSize = 128;
+    private class InventoryEntry : TileEditorCatalog.CatalogEntry
+    {
+        public bool universal = false;
+        public SortedDictionary<int, SortedDictionary<int, GameObject>> stock = new SortedDictionary<int, SortedDictionary<int, GameObject>>();
+        public new SortedDictionary<int, GameObject> this[int div]
+        {
+            get { return stock[div]; }
+        }
+    }
+    List<InventoryEntry> inventory;
+
+    Vector2 itemSelectorScrollPosition;
+    int selectedItem;
+
+    //GameObject block;
     GameObject ghost;
+
 
     // Block placing modes
     enum PlacingModes
@@ -72,10 +99,14 @@ public class TileGUI : EditorWindow
     bool autoRotateEnabled = true;
     bool radialSnapEnabled = true;
     bool angularSnapEnabled = true;
+    int selectedAngularDensity = 0;
+    int customAngularDensity = 192;
 
     private int radialGridDensity = 2;
     // TEMP, TODO: automatic density
     //private int angularGridDensity = 360;
+
+
 
     // Add menu item named "Tile Editor" to the Tools menu
     [MenuItem("Tools/Tile Editor")]
@@ -85,6 +116,7 @@ public class TileGUI : EditorWindow
         GetWindow(typeof(TileGUI));
     }
 
+
     void OnEnable()
     {
         SceneView.onSceneGUIDelegate += OnSceneGUI;
@@ -92,40 +124,146 @@ public class TileGUI : EditorWindow
 
         CreateLevelRoot();
 
+        if (Catalog == null)
+        {
+            TileEditorCatalog[] catalogs = Resources.FindObjectsOfTypeAll<TileEditorCatalog>();
+            if (catalogs.Length > 0) Catalog = catalogs[0];
+        }
     }
+
 
     // Called when updating this editor window
     void OnGUI()
     {
+        Catalog = (TileEditorCatalog)EditorGUILayout.ObjectField("Object Catalog", Catalog, typeof(TileEditorCatalog), false);
+
+        if (!CatalogLoaded)
+            EditorGUILayout.HelpBox("Load a catalog (TileEditorCatalog) to access all functionality.\nTo create a catalog, use the Create menu in the Assets folder and look for Tile Editor/Tile Editor Catalog.", MessageType.Warning);
+
         GUILayout.Label("Object Placement", EditorStyles.boldLabel);
 
-        placingMode = GUILayout.SelectionGrid(placingMode, placingModes, placingModes.Length, "button");
-        if (PlacingMode != PlacingModes.Off) Tools.current = Tool.None;
-        else if (Tools.current == Tool.None) Tools.current = Tool.View;
+        if (CatalogLoaded)
+        {
+            placingMode = GUILayout.SelectionGrid(placingMode, placingModes, placingModes.Length, "button");
+            if (PlacingMode != PlacingModes.Off) Tools.current = Tool.None;
+            else if (Tools.current == Tool.None) Tools.current = Tool.View;
+        }
 
+        #region Rotation controls
         EditorGUILayout.BeginHorizontal();
-        autoRotateEnabled = EditorGUILayout.Toggle("Auto rotate", autoRotateEnabled);
-        if (GUILayout.Button("Rotate Selection"))
+        if (CatalogLoaded)
+            autoRotateEnabled = EditorGUILayout.Toggle("Auto rotate", autoRotateEnabled);
+        GUILayout.Button(new GUIContent("↺", "Rotate 90° CCW"), GUILayout.Width(20));
+        if (GUILayout.Button("Rotate Selection", GUILayout.ExpandWidth(false)))
             RotateSelection();
+        GUILayout.Button(new GUIContent("↻", "Rotate 90° CW"), GUILayout.Width(20));
         EditorGUILayout.EndHorizontal();
+        #endregion Rotation controls
 
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("Snapping:");
-        EditorGUILayout.BeginVertical();
-        radialSnapEnabled = EditorGUILayout.ToggleLeft("Radial", radialSnapEnabled);
-        angularSnapEnabled = EditorGUILayout.ToggleLeft("Angular", angularSnapEnabled);
-        EditorGUILayout.EndVertical();
-        EditorGUILayout.EndHorizontal();
+        #region Radial and angular snapping controls
+        if (CatalogLoaded)
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Snapping:", GUILayout.Width(146));
+                using (new EditorGUILayout.HorizontalScope())
+                {
+
+                    var snapHS = new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(57));
+                    radialSnapEnabled = GUI.Toggle(snapHS.rect, radialSnapEnabled, "", "button");
+                    GUILayout.Label("  Radial");
+                    snapHS.Dispose();
+                    snapHS = new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(57));
+                    angularSnapEnabled = GUI.Toggle(snapHS.rect, angularSnapEnabled, "", "button");
+                    GUILayout.Label(" Angular");
+                    snapHS.Dispose();
+
+                }
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Angular Divisions", GUILayout.Width(146));
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    selectedAngularDensity = EditorGUILayout.IntPopup(selectedAngularDensity, new string[] { "Auto", "6", "12", "24", "48", "96", "192", "384", "768", "Custom..." }, new int[] { 0, 6, 12, 24, 48, 96, 192, 384, 768, -1 });
+                    if (selectedAngularDensity == -1)
+                        customAngularDensity = EditorGUILayout.IntField(customAngularDensity);
+                }
+            }
+        }
+        #endregion Radial and angular snapping controls
 
         EditorGUILayout.Space();
 
-        block = (GameObject)EditorGUILayout.ObjectField("Prefab", block, typeof(GameObject), false);
+        //block = (GameObject)EditorGUILayout.ObjectField("Prefab", block, typeof(GameObject), false);
 
+        #region Catalog
+        if (CatalogLoaded)
+        {
+            Color defColor = GUI.backgroundColor;
+            Color highlight = EditorStyles.label.focused.textColor.Lighter().Lighter().Lighter().Lighter();
+
+            // Prefab selector scroll view
+            using (var scrollView = new EditorGUILayout.ScrollViewScope(itemSelectorScrollPosition))
+            {
+                GUI.backgroundColor = Color.gray;
+                using (var v = new EditorGUILayout.VerticalScope())
+                {
+                    GUI.Box(v.rect, "");
+
+
+                    // Here we populate the list view ...
+                    int n = 0;
+                    while (n < Catalog.Count)
+                    {
+                        // ... row by row ...
+                        using (var H = new EditorGUILayout.HorizontalScope())
+                        {
+                            int w = 0;
+                            do
+                            {
+                                // ... element by element
+                                using (var h = new EditorGUILayout.HorizontalScope("button", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false), GUILayout.MaxWidth(catalogIconSize), GUILayout.MaxHeight(catalogIconSize), GUILayout.Width(catalogIconSize), GUILayout.Height(catalogIconSize)))
+                                {
+                                    // A checkbox disguised as a button with the functionality of a radio button
+
+                                    Texture2D tex = Catalog[n].GetIcon();
+                                    string displayName = Catalog[n].displayName;
+                                    GUIContent content = new GUIContent(tex, displayName);
+
+                                    // The toggle with an image
+                                    if (n == selectedItem)
+                                        GUI.backgroundColor = highlight;
+                                    if (GUI.Toggle(h.rect, n == selectedItem ? true : false, content, "button"))
+                                        selectedItem = n;
+                                    GUI.backgroundColor = Color.gray;
+
+                                    // and some text over it
+                                    GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
+                                    style.normal.textColor = n == selectedItem ? highlight : Color.white;
+                                    style.wordWrap = true;
+                                    GUILayout.Label(displayName, style);
+                                }
+                                w += catalogIconSize;
+                                n++;
+                            } while (n < Catalog.Count && w < (position.width - catalogIconSize));
+                        }
+                    }
+
+                    itemSelectorScrollPosition = scrollView.scrollPosition;
+                }
+                GUI.backgroundColor = defColor;
+            }
+        }
+        #endregion Catalog
 
         GUILayout.Label("Level Parameters", EditorStyles.boldLabel);
 
 
     }
+
+
 
     // Called when updating the Scene view
     void OnSceneGUI(SceneView sceneview)
@@ -135,6 +273,7 @@ public class TileGUI : EditorWindow
 
         Event e = Event.current;
 
+        #region KeyDown
         if (e.type == EventType.KeyDown)
         {
             switch (e.keyCode)
@@ -158,7 +297,9 @@ public class TileGUI : EditorWindow
                     break;
             }
         }
+        #endregion KeyDown
 
+        #region MouseMove
         if (e.type == EventType.MouseMove)
         {
             if (PlacingMode != PlacingModes.Off)
@@ -177,7 +318,8 @@ public class TileGUI : EditorWindow
 
                         // Place new ghost
                         Vector3 pos = ScreenToWorldSnap(e.mousePosition);
-                        ghost = Instantiate(block, pos, GetRotator(pos));
+                        // TODO:
+                        //ghost = Instantiate(block, pos, GetRotator(pos));
                         ghost.hideFlags = HideFlags.HideInHierarchy;
                         ghost.AddComponent<GhostPlaceholder>();
                     }
@@ -190,10 +332,12 @@ public class TileGUI : EditorWindow
                 }
                 catch { }
             }
-            else
+            else if (ghost != null)
                 DestroyImmediate(ghost.gameObject);
         }
+        #endregion KeyDown
 
+        #region MouseDown
         if (e.type == EventType.MouseDown)
         {
             if (e.button == 0)
@@ -205,8 +349,8 @@ public class TileGUI : EditorWindow
                     case PlacingModes.Single:
                         {
                             Vector3 pos = ScreenToWorldSnap(e.mousePosition);
-                            GameObject newObject = Instantiate(block, pos, GetRotator(pos), rootTransform);
-                            Undo.RegisterCreatedObjectUndo(newObject, "Placed single segment");
+                            GameObject newObject = Instantiate(GetCatalogObject(pos.magnitude, GetAngularGridDensity(pos.magnitude)), pos, GetRotator(pos), rootTransform);
+                            Undo.RegisterCreatedObjectUndo(newObject, "Place Segment");
                             break;
                         }
                     case PlacingModes.Arc:
@@ -215,7 +359,8 @@ public class TileGUI : EditorWindow
                         {
                             if (wallPlacingStarted)
                             {
-                                PlaceWall(wallFirstPosition, ScreenToWorldSnap(e.mousePosition));
+                                // TODO:
+                                //PlaceWall(wallFirstPosition, ScreenToWorldSnap(e.mousePosition));
                                 wallPlacingStarted = false;
                             }
                             else
@@ -226,7 +371,8 @@ public class TileGUI : EditorWindow
                             break;
                         }
                     case PlacingModes.Ring:
-                        PlaceRing(ScreenToWorldSnap(e.mousePosition));
+                        // TODO:
+                        //PlaceRing(ScreenToWorldSnap(e.mousePosition));
                         DrawGrid(Vector2.zero);
                         break;
                     default:
@@ -234,6 +380,7 @@ public class TileGUI : EditorWindow
                 }
             }
         }
+        #endregion MouseDown
 
         switch (PlacingMode)
         {
@@ -260,6 +407,7 @@ public class TileGUI : EditorWindow
                 break;
         }
     }
+
 
     Quaternion GetRotator(Vector2 pos)
     {
@@ -299,6 +447,11 @@ public class TileGUI : EditorWindow
         return pos;
     }
 
+    float SnapRadial(float r)
+    {
+        return ((Mathf.Floor(r * radialGridDensity) + 1) / radialGridDensity);
+    }
+
     // Applies radial snapping to a vector
     Vector3 SnapRadial(Vector3 pos)
     {
@@ -316,7 +469,7 @@ public class TileGUI : EditorWindow
 
     int GetAngularGridDensity(float r)
     {
-        return (int)(12 * Mathf.Pow(2, Mathf.Floor(Mathf.Log(r, 2) + 0.5f)));
+        return (int)(12 * Mathf.Pow(2, Mathf.Floor(Mathf.Log(r, 2) + 0.65f)));
     }
 
     void DrawGrid(Vector2 centre)
@@ -325,7 +478,7 @@ public class TileGUI : EditorWindow
     }
 
     // Place a ring from a given point
-    void PlaceRing(Vector3 pos)
+    void PlaceRing(GameObject go, Vector3 pos)
     {
         float R = pos.magnitude;
         int angularGridDensity = GetAngularGridDensity(R);
@@ -337,13 +490,13 @@ public class TileGUI : EditorWindow
         for (int i = 0; i < angularGridDensity; i++)
         {
             pos = rotator * pos;
-            GameObject newObject = Instantiate(block, pos, GetRotator(pos), ringRoot.transform);
+            Instantiate(go, pos, GetRotator(pos), ringRoot.transform);
         }
-        Undo.RegisterCreatedObjectUndo(ringRoot, "Placed ring " + R);
+        Undo.RegisterCreatedObjectUndo(ringRoot, "Place Ring " + R);
     }
 
     // Place a ring from a given point
-    void PlaceWall(Vector3 from, Vector3 to)
+    void PlaceWall(SortedDictionary<int, GameObject> column, Vector3 from, Vector3 to)
     {
         float R1 = from.magnitude;
         float R2 = to.magnitude;
@@ -358,10 +511,11 @@ public class TileGUI : EditorWindow
         wallRoot.transform.parent = rootTransform;
         for (int i = 0; i < n; ++i)
         {
-            GameObject newObject = Instantiate(block, fromDir * r, rotator, wallRoot.transform);
+            // TODO:
+            //Instantiate(block, fromDir * r, rotator, wallRoot.transform);
             r += deltaR;
         }
-        Undo.RegisterCreatedObjectUndo(wallRoot, "Placed wall");
+        Undo.RegisterCreatedObjectUndo(wallRoot, "Place Wall");
     }
 
     void CreateLevelRoot()
@@ -378,6 +532,74 @@ public class TileGUI : EditorWindow
         {
             if (obj.transform.IsChildOf(rootTransform))
                 obj.transform.rotation = GetRotator(obj.transform.position, true);
+        }
+    }
+
+    GameObject GetCatalogObject(float r, int angularDensity)
+    {
+        InventoryEntry entry = inventory[selectedItem];
+        if (entry.universal)
+        {
+            return entry[0][0];
+        }
+        else
+        {
+            return entry[angularDensity][Mathf.RoundToInt(r)];
+        }
+
+        return null;
+    }
+
+    void PopulateStock()
+    {
+        if (CatalogLoaded)
+        {
+            inventory = new List<InventoryEntry>();
+            for (int i = 0; i < Catalog.Count; i++)
+            {
+                InventoryEntry entry = new InventoryEntry();
+                TileEditorCatalog.CatalogEntry category = Catalog[i];
+                for (int j = 0; j < category.Count; j++)
+                {
+                    string name = category[j].name;
+                    string suffix = name.Substring(category.prefabNamePrefix.Length);
+                    string[] parameters = suffix.Split('_');
+                    int radius, angularDensity;
+                    if (parameters.Length == 2)
+                    {
+                        radius = int.Parse(parameters[0]);
+                        angularDensity = int.Parse(parameters[1]);
+                    }
+                    else
+                    {
+                        entry.universal = true;
+                        radius = angularDensity = 0;
+                    }
+                    SortedDictionary<int, GameObject> column;
+                    if (entry.stock.TryGetValue(angularDensity, out column))
+                        try
+                        {
+                            column.Add(radius, category[j]);
+                        }
+                        catch
+                        {
+                            Debug.LogWarning("Multiple entries of '" + entry.displayName + "' at {R=" + radius + ", divs=" + angularDensity + "} in '" + Catalog.name + ". Cannot add prefab '" + name + "' to Tile Editor.", Catalog);
+                        }
+                    else
+                    {
+                        column = new SortedDictionary<int, GameObject>();
+                        column.Add(radius, category[j]);
+                        entry.stock.Add(angularDensity, column);
+                    }
+                    if (entry.universal)
+                    {
+                        if (category.Count > 1)
+                            Debug.LogWarning("Error parsing entry '" + name + "' of '" + entry.displayName + "' in TileEditorCatalog '" + Catalog.name + "'.", Catalog);
+                        break;
+                    }
+                }
+                inventory.Add(entry);
+            }
         }
     }
 }
