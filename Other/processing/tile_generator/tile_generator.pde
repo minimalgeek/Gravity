@@ -45,7 +45,7 @@ void drawAndSaveTransparentImage(Tile tile) {
 
 PGraphics createArc(int center, int size, float fromAngle, float toAngle) {
   PGraphics pg = createGraphics(center*2, center, JAVA2D);
-  pg.noSmooth();
+  pg.smooth();
   pg.beginDraw();
   pg.noStroke();
   pg.translate(0, -center);
