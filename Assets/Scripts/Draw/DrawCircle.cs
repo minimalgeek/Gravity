@@ -6,15 +6,12 @@ using Gamelogic.Extensions;
 [RequireComponent(typeof(LineRenderer))]
 public class DrawCircle : MonoBehaviour
 {
-    public enum Axis { X, Y, Z };
 
     [SerializeField]
-    [Tooltip("The number of lines that will be used to draw the circle. The more lines, the more the circle will be \"flexible\".")]
     [Range(0, 1000)]
     private int segments = 60;
 
     [SerializeField]
-    [Tooltip("The radius.")]
     private float radius = 10;
 
     [SerializeField]
