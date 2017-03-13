@@ -3,7 +3,6 @@ using UnityEngine;
 using Gamelogic.Extensions;
 
 [ExecuteInEditMode]
-[RequireComponent(typeof(LineRenderer))]
 public class DrawCircle : MonoBehaviour
 {
 
