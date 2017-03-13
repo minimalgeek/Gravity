@@ -18,11 +18,7 @@ public class Gravity : Singleton<Gravity>
         this.frequency = freq;
     }
 
-    void Start()
-    {
-        FindAffectedObjects();
-    }
-    void Update()
+    void FixedUpdate()
     {
         FindAffectedObjects();
         angularVelocity = 2 * Mathf.PI * frequency;
