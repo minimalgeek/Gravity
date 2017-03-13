@@ -7,14 +7,13 @@ public class Camera2DFollow : GLMonoBehaviour
     public Transform target;
     public float damping = 1;
     public float rotationSpeed = 3;
-    public float lookAheadFactor = 3;
-    public float lookAheadReturnSpeed = 0.5f;
-    public float lookAheadMoveThreshold = 0.1f;
+    public float lookAheadValue = 2f;
+    [Tooltip("Lookahead is recalculated, when the rotation angle exceeds this threshold")]
+    public float lookAheadThreshold = 10f;
 
-    private float zOffset;
-    private Vector3 lastTargetPosition;
     private Vector3 currentVelocity;
-    private Vector3 lookAheadPos;
+    private float zOffset;
+    private float previousRotationZ;
 
     // Use this for initialization
     private void Start()
@@ -23,8 +22,8 @@ public class Camera2DFollow : GLMonoBehaviour
         {
             target = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER).transform;
         }
-        lastTargetPosition = target.position;
         zOffset = (transform.position - target.position).z;
+        previousRotationZ = GetRotationZEuler();
         transform.parent = null;
     }
 
@@ -38,29 +37,34 @@ public class Camera2DFollow : GLMonoBehaviour
         }
 
         CalculateLookaheadPosition();
-        CalculateRotation();        
+        CalculateRotation();
     }
 
     private void CalculateLookaheadPosition()
     {
-        // only update lookahead pos if accelerating or changed direction
-        Vector3 diff = (target.position - lastTargetPosition);
-        float moveDelta = diff.x + diff.y;
-        bool updateLookAheadTarget = Mathf.Abs(moveDelta) > lookAheadMoveThreshold;
+        Vector3 facingDir;
 
-        if (updateLookAheadTarget)
+        if (previousRotationZ < GetRotationZEuler())
         {
-            lookAheadPos = lookAheadFactor * Vector3.right * Mathf.Sign(moveDelta);
+            facingDir = target.right;
         }
         else
         {
-            lookAheadPos = Vector3.MoveTowards(lookAheadPos, Vector3.zero, Time.deltaTime * lookAheadReturnSpeed);
+            facingDir = target.right * -1;
         }
 
-        Vector3 aheadTargetPos = target.position + lookAheadPos + Vector3.forward * zOffset;
+        Vector3 aheadTargetPos = target.position + Vector3.forward * zOffset + lookAheadValue * facingDir;
         transform.position = Vector3.SmoothDamp(transform.position, aheadTargetPos, ref currentVelocity, damping);
 
-        lastTargetPosition = target.position;
+        if (Mathf.Abs(GetRotationZEuler() - previousRotationZ) > lookAheadThreshold)
+        {
+            previousRotationZ = GetRotationZEuler();
+        }
+    }
+
+    private float GetRotationZEuler()
+    {
+        return target.rotation.eulerAngles.z + 180f;
     }
 
     private void CalculateRotation()
