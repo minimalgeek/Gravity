@@ -37,9 +37,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4762393632111662}
   - component: {fileID: 212764975960423894}
-  - component: {fileID: 114585339354688400}
   - component: {fileID: 114987778877495896}
-  - component: {fileID: 60285549910402418}
+  - component: {fileID: 60661377193920016}
   m_Layer: 8
   m_Name: Ring
   m_TagString: Untagged
@@ -196,7 +195,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!60 &60285549910402418
+--- !u!60 &60661377193920016
 PolygonCollider2D:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -878,18 +877,6 @@ PolygonCollider2D:
       - {x: -2.1599998, y: 2.85}
       - {x: -1.78, y: 3.1}
       - {x: -1.6899999, y: 3.1499999}
---- !u!114 &114585339354688400
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1335146607686516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af1a8a8b5b69645458a7af739f4b623c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  frequency: 0.07
 --- !u!114 &114987778877495896
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -909,7 +896,7 @@ ParticleSystem:
   m_GameObject: {fileID: 1951697585504908}
   serializedVersion: 5
   lengthInSec: 5
-  speed: 1
+  simulationSpeed: 1
   looping: 1
   prewarm: 0
   playOnAwake: 1
@@ -3546,7 +3533,7 @@ ParticleSystem:
   m_GameObject: {fileID: 1493283151878112}
   serializedVersion: 5
   lengthInSec: 5
-  speed: 1
+  simulationSpeed: 1
   looping: 1
   prewarm: 0
   playOnAwake: 1
@@ -6183,7 +6170,7 @@ ParticleSystem:
   m_GameObject: {fileID: 1485491211371910}
   serializedVersion: 5
   lengthInSec: 5
-  speed: 1
+  simulationSpeed: 1
   looping: 1
   prewarm: 0
   playOnAwake: 1
@@ -8820,7 +8807,7 @@ ParticleSystem:
   m_GameObject: {fileID: 1002892912126682}
   serializedVersion: 5
   lengthInSec: 5
-  speed: 1
+  simulationSpeed: 1
   looping: 1
   prewarm: 0
   playOnAwake: 1
