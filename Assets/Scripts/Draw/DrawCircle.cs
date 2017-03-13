@@ -39,16 +39,29 @@ public class DrawCircle : MonoBehaviour
     private float previousToAngle;
     private float previousLineRendererWidth;
 
+	private PolygonCollider2D polyCollider;
     private LineRenderer line;
 
     void Start()
     {
-        line = gameObject.GetComponent<LineRenderer>();
+		line = GetOrAddComponent<LineRenderer>();
+		polyCollider = GetOrAddComponent<PolygonCollider2D>();
+		
         line.useWorldSpace = false;
 
         UpdateValuesChanged();
         CreatePoints();
     }
+
+	private T GetOrAddComponent<T>() where T : Component {
+		T comp = this.gameObject.GetComponent<T>();
+
+		if (comp == null) {
+			comp = this.gameObject.AddComponent<T>();
+		}
+
+		return comp;
+	}
 
     void Update()
     {
@@ -121,15 +134,6 @@ public class DrawCircle : MonoBehaviour
         lowerPath.Reverse();
         upperPath.AddRange(lowerPath);
 
-        AddColliderToLine(upperPath.ToArray());
-    }
-
-    private void AddColliderToLine(Vector2[] path)
-    {
-        PolygonCollider2D old = this.gameObject.GetComponent<PolygonCollider2D>();
-        if (old) DestroyImmediate(old);
-        PolygonCollider2D collider = this.gameObject.AddComponent<PolygonCollider2D>();
-
-        collider.SetPath(0, path);
+		polyCollider.SetPath(0, upperPath.ToArray());
     }
 }
