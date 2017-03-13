@@ -105,9 +105,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   damping: 0.6
-  rotationSpeed: 1.5
+  rotationSpeed: 5
   lookAheadValue: 2
-  lookAheadThreshold: 10
 --- !u!124 &124554150507205244
 Behaviour:
   m_ObjectHideFlags: 1

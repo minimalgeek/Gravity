@@ -8,12 +8,10 @@ public class Camera2DFollow : GLMonoBehaviour
     public float damping = 1;
     public float rotationSpeed = 3;
     public float lookAheadValue = 2f;
-    [Tooltip("Lookahead is recalculated, when the rotation angle exceeds this threshold")]
-    public float lookAheadThreshold = 10f;
 
     private Vector3 currentVelocity;
     private float zOffset;
-    private float previousRotationZ;
+    private float previousHorizontalInput;
 
     // Use this for initialization
     private void Start()
@@ -23,7 +21,7 @@ public class Camera2DFollow : GLMonoBehaviour
             target = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER).transform;
         }
         zOffset = (transform.position - target.position).z;
-        previousRotationZ = GetRotationZEuler();
+        previousHorizontalInput = 0f;
         transform.parent = null;
     }
 
@@ -36,15 +34,19 @@ public class Camera2DFollow : GLMonoBehaviour
             return;
         }
 
-        CalculateLookaheadPosition();
+        CalculatePosition();
         CalculateRotation();
+        if (Input.GetAxisRaw("Horizontal") != 0)
+        {
+            previousHorizontalInput = Input.GetAxisRaw("Horizontal");
+        }
     }
 
-    private void CalculateLookaheadPosition()
+    private void CalculatePosition()
     {
         Vector3 facingDir;
 
-        if (previousRotationZ < GetRotationZEuler())
+        if (previousHorizontalInput > 0)
         {
             facingDir = target.right;
         }
@@ -55,11 +57,6 @@ public class Camera2DFollow : GLMonoBehaviour
 
         Vector3 aheadTargetPos = target.position + Vector3.forward * zOffset + lookAheadValue * facingDir;
         transform.position = Vector3.SmoothDamp(transform.position, aheadTargetPos, ref currentVelocity, damping);
-
-        if (Mathf.Abs(GetRotationZEuler() - previousRotationZ) > lookAheadThreshold)
-        {
-            previousRotationZ = GetRotationZEuler();
-        }
     }
 
     private float GetRotationZEuler()
@@ -69,6 +66,6 @@ public class Camera2DFollow : GLMonoBehaviour
 
     private void CalculateRotation()
     {
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, target.rotation.eulerAngles.z), Time.deltaTime * rotationSpeed);
+        transform.rotation = Quaternion.Lerp(transform.rotation, target.rotation, Time.deltaTime * rotationSpeed);
     }
 }
