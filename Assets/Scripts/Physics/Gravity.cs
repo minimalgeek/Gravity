@@ -24,7 +24,8 @@ public class Gravity : Singleton<Gravity>
         angularVelocity = 2 * Mathf.PI * frequency;
         foreach (Rigidbody2D rb in affectedObjects)
         {
-            Attract(rb);
+            if (rb.simulated)
+                Attract(rb);
         }
     }
 
