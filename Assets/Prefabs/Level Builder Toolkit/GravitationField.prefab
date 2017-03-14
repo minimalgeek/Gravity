@@ -51,4 +51,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af1a8a8b5b69645458a7af739f4b623c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frequency: 0.08
+  angularVelocity: 0.5

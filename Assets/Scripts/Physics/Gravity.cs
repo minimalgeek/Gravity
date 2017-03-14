@@ -6,22 +6,20 @@ using System;
 
 public class Gravity : Singleton<Gravity>
 {
-    [TooltipAttribute("Rotation per second")]
-    public float frequency;
+    [TooltipAttribute("Rad/sec")]
+    [SerializeField]
+    private float angularVelocity;
     private Rigidbody2D[] affectedObjects;
 
-    // Physics
-    private float angularVelocity;
-
-    public void SetFrequency(float freq)
-    {
-        this.frequency = freq;
+    public float AngularVelocity {
+        set {
+            this.angularVelocity = value;
+        }
     }
 
     void FixedUpdate()
     {
         FindAffectedObjects();
-        angularVelocity = 2 * Mathf.PI * frequency;
         foreach (Rigidbody2D rb in affectedObjects)
         {
             if (rb.simulated)
@@ -33,15 +31,6 @@ public class Gravity : Singleton<Gravity>
     {
         affectedObjects = GameObject.FindObjectsOfType<Rigidbody2D>();
     }
-
-/*    void FixedUpdate()
-    {
-        angularVelocity = 2 * Mathf.PI * frequency;
-        foreach (Rigidbody2D rb in affectedObjects)
-        {
-            Attract(rb);
-        }
-    }*/
 
     private void Attract(Rigidbody2D body)
     {

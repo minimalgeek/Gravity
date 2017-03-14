@@ -72,7 +72,9 @@ public class CharacterController : GLMonoBehaviour
             if (!isClimbing)
             {
                 SetLocalVelocity(Vector2.zero);
-            } else {
+            }
+            else
+            {
                 rb.DOMove(toClimbRelativePos.position, 1f, false);
             }
         }
