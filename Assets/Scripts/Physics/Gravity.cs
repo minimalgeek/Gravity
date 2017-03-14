@@ -48,17 +48,12 @@ public class Gravity : Singleton<Gravity>
         Transform t = body.transform;
         Vector3 gravityUp = t.position - transform.position;
         // Centripetal force
-        Vector3 gravityUpNormal = gravityUp;
-        gravityUpNormal.Normalize();
-        Vector3 centripetalForce = body.mass * gravityUp.magnitude * Mathf.Pow(angularVelocity, 2) * gravityUpNormal;
-        //Vector3 centripetalForce = body.mass * gravityUp * Mathf.Pow(angularVelocity, 2);
+        Vector3 centripetalForce = body.mass * gravityUp * Mathf.Pow(angularVelocity, 2);
         Debug.DrawLine(t.position, t.position + centripetalForce, Color.red);
         body.AddForce(centripetalForce);
 
         // Coriolis force
-        Vector3 rotationVector = Vector3.forward * angularVelocity;
-        Vector3 velocityVector = body.velocity;
-        Vector3 coriolisForce = -2 * body.mass * Vector3.Cross(rotationVector, velocityVector);
+        Vector3 coriolisForce = -2 * body.mass * Vector3.Cross(Vector3.forward * angularVelocity, body.velocity);
         Debug.DrawLine(t.position, t.position + coriolisForce, Color.green);
         body.AddForce(coriolisForce);
     }
