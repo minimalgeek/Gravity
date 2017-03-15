@@ -6,9 +6,10 @@ using System.Collections.Generic;
 
 public class TileGUI : EditorWindow
 {
-    // The Level Root object, into which all objects are placed
+    // The Level Root object, into which all other objects are placed
     GameObject root;
     Transform rootTransform;
+    GameObject grid;
 
     TileEditorCatalog _catalog;
     public TileEditorCatalog Catalog
@@ -33,12 +34,7 @@ public class TileGUI : EditorWindow
     int catalogIconSize = 128;
     private class InventoryEntry : TileEditorCatalog.CatalogEntry
     {
-        public bool universal = false;
-        public SortedDictionary<int, SortedDictionary<int, GameObject>> stock = new SortedDictionary<int, SortedDictionary<int, GameObject>>();
-        public new SortedDictionary<int, GameObject> this[int div]
-        {
-            get { return stock[div]; }
-        }
+        public bool isArc = false;
     }
     List<InventoryEntry> inventory;
 
@@ -104,6 +100,12 @@ public class TileGUI : EditorWindow
 
     bool wallPlacingStarted = false;
     Vector3 wallFirstPosition;
+    float wallFirstRadius;
+    LineRenderer wallRay;
+
+    bool arcPlacingStarted = false;
+    Vector3 arcFirstPosition;
+    float arcRadius;
 
     bool autoRotateEnabled = true;
     bool radialSnapEnabled = true;
@@ -111,10 +113,9 @@ public class TileGUI : EditorWindow
     int selectedAngularDensity = 0;
     int customAngularDensity = 192;
 
+    private float radialThickness = 0.25f;
+    int selectedRadialThickness = 0;
     private int radialGridDensity = 2;
-    // TEMP, TODO: automatic density
-    //private int angularGridDensity = 360;
-
 
 
     // Add menu item named "Tile Editor" to the Tools menu
@@ -132,19 +133,25 @@ public class TileGUI : EditorWindow
         titleContent.text = "Tile Editor";
 
         CreateLevelRoot();
+        CreateGrid();
 
-        if (Catalog == null)
-        {
-            TileEditorCatalog[] catalogs = Resources.FindObjectsOfTypeAll<TileEditorCatalog>();
-            if (catalogs.Length > 0) Catalog = catalogs[0];
-        }
+        CheckCatalog();
     }
 
 
     // Called when updating this editor window
     void OnGUI()
     {
-        Catalog = (TileEditorCatalog)EditorGUILayout.ObjectField("Object Catalog", Catalog, typeof(TileEditorCatalog), false);
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            GUILayout.Label("Object Catalog", GUILayout.Width(146));
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                Catalog = (TileEditorCatalog)EditorGUILayout.ObjectField("", Catalog, typeof(TileEditorCatalog), false);
+                if (GUILayout.Button("Reload"))
+                    CheckCatalog();
+            }
+        }
 
         if (!CatalogLoaded)
             EditorGUILayout.HelpBox("Load a catalog (TileEditorCatalog) to access all functionality.\nTo create a catalog, use the Create menu in the Assets folder and look for Tile Editor/Tile Editor Catalog.", MessageType.Warning);
@@ -153,7 +160,36 @@ public class TileGUI : EditorWindow
 
         using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
         {
-            placingMode = GUILayout.SelectionGrid(placingMode, placingModes, placingModes.Length, "button");
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                float buttonWidth = (position.width - 3f) * 0.2f - 4f;
+                if (GUILayout.Toggle(PlacingMode == PlacingModes.Off, placingModes[0], "button", GUILayout.Width(buttonWidth)))
+                {
+                    PlacingMode = PlacingModes.Off;
+                    wallPlacingStarted = false;
+                }
+                if (GUILayout.Toggle(PlacingMode == PlacingModes.Single, placingModes[1], "button", GUILayout.Width(buttonWidth)))
+                {
+                    PlacingMode = PlacingModes.Single;
+                    wallPlacingStarted = false;
+                }
+                using (new EditorGUI.DisabledGroupScope(!CatalogLoaded || !inventory[selectedItem].isArc))
+                {
+                    if (GUILayout.Toggle(PlacingMode == PlacingModes.Arc, placingModes[2], "button", GUILayout.Width(buttonWidth)))
+                    {
+                        PlacingMode = PlacingModes.Arc;
+                        wallPlacingStarted = false;
+                    }
+                    if (GUILayout.Toggle(PlacingMode == PlacingModes.Wall, placingModes[3], "button", GUILayout.Width(buttonWidth)))
+                        PlacingMode = PlacingModes.Wall;
+                    if (GUILayout.Toggle(PlacingMode == PlacingModes.Ring, placingModes[4], "button", GUILayout.Width(buttonWidth)))
+                    {
+                        PlacingMode = PlacingModes.Ring;
+                        wallPlacingStarted = false;
+                    }
+                }
+            }
+            //placingMode = GUILayout.SelectionGrid(placingMode, placingModes, placingModes.Length, "button");
             if (PlacingMode != PlacingModes.Off) Tools.current = Tool.None;
             else if (Tools.current == Tool.None) Tools.current = Tool.Move;
         }
@@ -202,6 +238,38 @@ public class TileGUI : EditorWindow
                         customAngularDensity = EditorGUILayout.IntField(customAngularDensity);
                 }
             }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Radial Thickness", GUILayout.Width(146));
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    selectedRadialThickness = EditorGUILayout.Popup(selectedRadialThickness, new string[] { "0.25 m", "50 m", "0.75 m", "1 m", "2 m", "Custom..." });
+                    switch (selectedRadialThickness)
+                    {
+                        case 0:
+                            radialThickness = 0.25f;
+                            break;
+                        case 1:
+                            radialThickness = 0.5f;
+                            break;
+                        case 2:
+                            radialThickness = 0.75f;
+                            break;
+                        case 3:
+                            radialThickness = 1f;
+                            break;
+                        case 4:
+                            radialThickness = 2f;
+                            break;
+                        case 5:
+                            radialThickness = EditorGUILayout.Slider(radialThickness, 0.1f, 10);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
         #endregion Radial and angular snapping controls
 
@@ -209,12 +277,12 @@ public class TileGUI : EditorWindow
 
         //block = (GameObject)EditorGUILayout.ObjectField("Prefab", block, typeof(GameObject), false);
 
-        if (CatalogLoaded && !inventory[selectedItem].universal)
-        {
-            int[] keys = new int[inventory[selectedItem].stock.Keys.Count];
-            inventory[selectedItem].stock.Keys.CopyTo(keys, 0);
-            GUILayout.SelectionGrid(0, System.Array.ConvertAll(keys, x => x.ToString()), keys.Length, "button");
-        }
+        //if (CatalogLoaded && !inventory[selectedItem].universal)
+        //{
+        //    int[] keys = new int[inventory[selectedItem].stock.Keys.Count];
+        //    inventory[selectedItem].stock.Keys.CopyTo(keys, 0);
+        //    GUILayout.SelectionGrid(0, System.Array.ConvertAll(keys, x => x.ToString()), keys.Length, "button");
+        //}
 
         #region Catalog
         if (CatalogLoaded)
@@ -254,7 +322,17 @@ public class TileGUI : EditorWindow
                                     if (n == selectedItem)
                                         GUI.backgroundColor = highlight;
                                     if (GUI.Toggle(h.rect, n == selectedItem ? true : false, content, "button"))
-                                        selectedItem = n;
+                                    {
+                                        if (selectedItem != n)
+                                        {
+                                            if (ghost != null)
+                                                DestroyImmediate(ghost.gameObject);
+                                            Debug.LogWarning("new selected");
+                                            selectedItem = n;
+                                            if (!inventory[selectedItem].isArc && PlacingMode != PlacingModes.Off)
+                                                PlacingMode = PlacingModes.Single;
+                                        }
+                                    }
                                     GUI.backgroundColor = Color.gray;
 
                                     // and some text over it
@@ -265,7 +343,7 @@ public class TileGUI : EditorWindow
                                 }
                                 w += catalogIconSize;
                                 n++;
-                            } while (n < Catalog.Count && w < (position.width - catalogIconSize));
+                            } while (n < inventory.Count && w < (position.width - catalogIconSize));
                         }
                     }
 
@@ -274,6 +352,7 @@ public class TileGUI : EditorWindow
                 GUI.backgroundColor = defColor;
             }
         }
+        Debug.Log(selectedItem);
         #endregion Catalog
 
         GUILayout.Label("Level Parameters", EditorStyles.boldLabel);
@@ -317,43 +396,74 @@ public class TileGUI : EditorWindow
         }
         #endregion KeyDown
 
+
         #region MouseMove
         if (e.type == EventType.MouseMove)
         {
-            if (PlacingMode != PlacingModes.Off)
+            switch (PlacingMode)
             {
-                try
-                {
+                case PlacingModes.Off:
+                    if (ghost != null)
+                        DestroyImmediate(ghost.gameObject);
+                    break;
+                case PlacingModes.Single:
                     // Place or move ghost
                     if (ghost == null)
                     {
-                        // Remove stuck ghosts from a previous session
-                        GhostPlaceholder[] formerGhosts = FindObjectsOfType<GhostPlaceholder>();
-                        foreach (GhostPlaceholder formerGhost in formerGhosts)
-                        {
-                            DestroyImmediate(formerGhost.gameObject);
-                        }
-
-                        // Place new ghost
-                        Vector3 pos = ScreenToWorldSnap(e.mousePosition);
-                        // TODO:
-                        //ghost = Instantiate(block, pos, GetRotator(pos));
-                        ghost.hideFlags = HideFlags.HideInHierarchy;
-                        ghost.AddComponent<GhostPlaceholder>();
+                        RemoveGhosts();
+                        PlaceSingleGhost(ScreenToWorldSnap(e.mousePosition));
                     }
                     else
+                        UpdateSingleGhost(ScreenToWorldSnap(e.mousePosition));
+                    break;
+                case PlacingModes.Arc:
+                    if (arcPlacingStarted)
+                        if (ghost == null)
+                            arcPlacingStarted = false;
+                        else
+                            UpdateArcGhost(ScreenToWorldSnap(e.mousePosition));
+                    else
                     {
-                        // Update ghost attitude
-                        ghost.transform.position = ScreenToWorldSnap(e.mousePosition);
-                        ghost.transform.rotation = GetRotator(ghost.transform.position);
+                        if (ghost == null)
+                        {
+                            RemoveGhosts();
+                            PlaceSingleGhost(ScreenToWorldSnap(e.mousePosition));
+                        }
+                        else
+                            UpdateSingleGhost(ScreenToWorldSnap(e.mousePosition));
                     }
-                }
-                catch { }
+                    break;
+                case PlacingModes.Wall:
+                    if (wallPlacingStarted)
+                        if (ghost == null)
+                            wallPlacingStarted = false;
+                        else
+                            UpdateWallGhost(ScreenToWorldSnap(e.mousePosition));
+                    else {
+                        if (ghost == null)
+                        {
+                            RemoveGhosts();
+                            PlaceSingleGhost(ScreenToWorldSnap(e.mousePosition));
+                        }
+                        else
+                            UpdateSingleGhost(ScreenToWorldSnap(e.mousePosition));
+                    }
+                    break;
+                case PlacingModes.Ring:
+                    if (ghost == null)
+                    {
+                        RemoveGhosts();
+                        PlaceSingleGhost(ScreenToWorldSnap(e.mousePosition));
+                    }
+                    else
+                        UpdateSingleGhost(ScreenToWorldSnap(e.mousePosition));
+                    break;
+                default:
+                    break;
             }
-            else if (ghost != null)
-                DestroyImmediate(ghost.gameObject);
         }
         #endregion KeyDown
+
 
         #region MouseDown
         if (e.type == EventType.MouseDown)
@@ -366,13 +476,47 @@ public class TileGUI : EditorWindow
                         break;
                     case PlacingModes.Single:
                         {
+                            InventoryEntry entry = inventory[selectedItem];
                             Vector3 pos = ScreenToWorldSnap(e.mousePosition);
-                            GameObject newObject = Instantiate(GetCatalogObject(pos.magnitude, GetAngularGridDensity(pos.magnitude)), pos, GetRotator(pos), rootTransform);
-                            Undo.RegisterCreatedObjectUndo(newObject, "Place Segment");
+                            GameObject newObject = Instantiate(entry.prefab, pos, GetRotator(pos), rootTransform);
+                            if (entry.isArc)
+                            {
+                                float rad = pos.magnitude;
+                                try
+                                {
+                                    newObject.GetComponent<ArcTile>().SetParams(rad - radialThickness, rad, 1, GetAngularGridDensity(rad), 768, 0);
+                                }
+                                catch { }
+                                Undo.RegisterCreatedObjectUndo(newObject, "Place Segment");
+                            }
+                            else
+                            {
+                                Undo.RegisterCreatedObjectUndo(newObject, "Place " + entry.displayName);
+                            }
                             break;
                         }
                     case PlacingModes.Arc:
-                        break;
+                        {
+                            if (arcPlacingStarted)
+                            {
+                                arcPlacingStarted = false;
+                                DestroyImmediate(ghost.GetComponent<GhostPlaceholder>());
+                                ghost.hideFlags &= ~HideFlags.HideInHierarchy;
+                                ghost.transform.parent = rootTransform;
+                                Undo.RegisterCreatedObjectUndo(ghost, "Place Arc");
+                                ghost = null;
+                            }
+                            else
+                            {
+                                DestroyImmediate(ghost);
+                                RemoveGhosts();
+
+                                arcFirstPosition = ScreenToWorldSnap(e.mousePosition);
+                                arcPlacingStarted = true;
+                                PlaceArcGhost();
+                            }
+                            break;
+                        }
                     case PlacingModes.Wall:
                         {
                             if (wallPlacingStarted)
@@ -380,18 +524,26 @@ public class TileGUI : EditorWindow
                                 // TODO:
                                 //PlaceWall(wallFirstPosition, ScreenToWorldSnap(e.mousePosition));
                                 wallPlacingStarted = false;
+                                DestroyImmediate(ghost.GetComponent<GhostPlaceholder>());
+                                ghost.hideFlags &= ~HideFlags.HideInHierarchy;
+                                ghost.transform.parent = rootTransform;
+                                Undo.RegisterCreatedObjectUndo(ghost, "Place Wall");
+                                ghost = null;
                             }
                             else
                             {
+                                DestroyImmediate(ghost);
+                                RemoveGhosts();
+
                                 wallFirstPosition = ScreenToWorldSnap(e.mousePosition);
+                                wallFirstRadius = wallFirstPosition.magnitude;
                                 wallPlacingStarted = true;
+                                PlaceWallGhost();
                             }
                             break;
                         }
                     case PlacingModes.Ring:
-                        // TODO:
-                        //PlaceRing(ScreenToWorldSnap(e.mousePosition));
-                        DrawGrid(Vector2.zero);
+                        PlaceRing(ScreenToWorldSnap(e.mousePosition));
                         break;
                     default:
                         break;
@@ -399,31 +551,6 @@ public class TileGUI : EditorWindow
             }
         }
         #endregion MouseDown
-
-        switch (PlacingMode)
-        {
-            case PlacingModes.Off:
-                break;
-            case PlacingModes.Single:
-                break;
-            case PlacingModes.Arc:
-                break;
-            case PlacingModes.Wall:
-                if (wallPlacingStarted)
-                {
-                    Vector3 fromDir = Vector3.Normalize(wallFirstPosition);
-                    Debug.DrawLine(Vector2.zero, fromDir * 50, Color.cyan);
-                    Vector3 to = fromDir * ScreenToWorldSnap(e.mousePosition).magnitude;
-                    Debug.DrawLine(wallFirstPosition, to, Color.red);
-                }
-                else
-                    Debug.DrawLine(Vector2.zero, Vector3.Normalize(ScreenToWorldSnap(e.mousePosition)) * 50, Color.cyan);
-                break;
-            case PlacingModes.Ring:
-                break;
-            default:
-                break;
-        }
     }
 
 
@@ -467,14 +594,14 @@ public class TileGUI : EditorWindow
 
     float SnapRadial(float r)
     {
-        return ((Mathf.Floor(r * radialGridDensity) + 1) / radialGridDensity);
+        return ((Mathf.Floor(r / radialThickness) + 1) * radialThickness);
     }
 
     // Applies radial snapping to a vector
     Vector3 SnapRadial(Vector3 pos)
     {
         float r = pos.magnitude;
-        return pos * ((Mathf.Floor(r * radialGridDensity) + 1) / (radialGridDensity * r));
+        return pos * ((Mathf.Floor(r / radialThickness) + 1) * radialThickness / r);
     }
 
     // Applies angular snapping to a vector
@@ -485,9 +612,14 @@ public class TileGUI : EditorWindow
         return new Vector3(Mathf.Cos(phi), Mathf.Sin(phi), 0) * pos.magnitude;
     }
 
-    int GetAngularGridDensity(float r)
+    int GetAngularGridDensity(float r, bool forceAuto = false)
     {
-        return (int)(12 * Mathf.Pow(2, Mathf.Floor(Mathf.Log(r, 2) + 0.65f)));
+        if (selectedAngularDensity == 0)
+            return (int)(12 * Mathf.Pow(2, Mathf.Floor(Mathf.Log(r, 2) + 0.65f)));
+        else if (selectedAngularDensity == -1)
+            return customAngularDensity;
+        else
+            return selectedAngularDensity;
     }
 
     void DrawGrid(Vector2 centre)
@@ -496,45 +628,48 @@ public class TileGUI : EditorWindow
     }
 
     // Place a ring from a given point
-    void PlaceRing(GameObject go, Vector3 pos)
+    void PlaceRing(Vector3 pos)
     {
-        float R = pos.magnitude;
+        float R = Mathf.Round(pos.magnitude / radialThickness) * radialThickness;
         int angularGridDensity = GetAngularGridDensity(R);
         float deltaAngle = 360f / angularGridDensity;
         Quaternion rotator = Quaternion.Euler(0, 0, deltaAngle);
 
         GameObject ringRoot = new GameObject("Ring " + R);
+        GameObject go = inventory[selectedItem].prefab;
+        bool arc = inventory[selectedItem].isArc;
         ringRoot.transform.parent = rootTransform;
         for (int i = 0; i < angularGridDensity; i++)
         {
             pos = rotator * pos;
-            Instantiate(go, pos, GetRotator(pos), ringRoot.transform);
+            GameObject newObject = Instantiate(go, pos, GetRotator(pos), ringRoot.transform);
+            if (arc)
+                newObject.GetComponent<ArcTile>().SetParams(R - radialThickness, R, 1, angularGridDensity, 768, 0f);
         }
         Undo.RegisterCreatedObjectUndo(ringRoot, "Place Ring " + R);
     }
 
-    // Place a ring from a given point
-    void PlaceWall(SortedDictionary<int, GameObject> column, Vector3 from, Vector3 to)
-    {
-        float R1 = from.magnitude;
-        float R2 = to.magnitude;
-        float deltaR = (R2 > R1 ? 1f : -1f) / radialGridDensity;
-        Debug.Log(Mathf.Abs(R2 - R1) * radialGridDensity);
-        int n = Mathf.FloorToInt(Mathf.Abs(R2 - R1) * radialGridDensity + 0.001f) + 1;
-        float r = R1;
-        Vector3 fromDir = Vector3.Normalize(from);
-        Quaternion rotator = GetRotator(from);
+    //// Place a ring from a given point
+    //void PlaceWall(SortedDictionary<int, GameObject> column, Vector3 from, Vector3 to)
+    //{
+    //    float R1 = from.magnitude;
+    //    float R2 = to.magnitude;
+    //    float deltaR = (R2 > R1 ? 1f : -1f) * radialThickness;
+    //    Debug.Log(Mathf.Abs(R2 - R1) / radialThickness);
+    //    int n = Mathf.FloorToInt(Mathf.Abs(R2 - R1) / radialThickness + 0.001f) + 1;
+    //    float r = R1;
+    //    Vector3 fromDir = Vector3.Normalize(from);
+    //    Quaternion rotator = GetRotator(from);
 
-        GameObject wallRoot = new GameObject("Wall");
-        wallRoot.transform.parent = rootTransform;
-        for (int i = 0; i < n; ++i)
-        {
-            // TODO:
-            //Instantiate(block, fromDir * r, rotator, wallRoot.transform);
-            r += deltaR;
-        }
-        Undo.RegisterCreatedObjectUndo(wallRoot, "Place Wall");
-    }
+    //    GameObject wallRoot = new GameObject("Wall");
+    //    wallRoot.transform.parent = rootTransform;
+    //    for (int i = 0; i < n; ++i)
+    //    {
+    //        Instantiate(inventory[selectedItem].prefab, fromDir * r, rotator, wallRoot.transform);
+    //        r += deltaR;
+    //    }
+    //    Undo.RegisterCreatedObjectUndo(wallRoot, "Place Wall");
+    //}
 
     void CreateLevelRoot()
     {
@@ -542,6 +677,21 @@ public class TileGUI : EditorWindow
         if (root == null)
             root = new GameObject("Level Root");
         rootTransform = root.transform;
+    }
+
+    void CreateGrid()
+    {
+        Debug.LogWarning("Grid!");
+        grid = GameObject.Find("Editor Grid");
+        if (grid == null)
+        {
+            grid = new GameObject("Editor Grid");
+            wallRay = grid.AddComponent<LineRenderer>();
+        }
+        else
+        {
+            wallRay = grid.GetComponent<LineRenderer>();
+        }
     }
 
     void RotateSelection()
@@ -553,72 +703,124 @@ public class TileGUI : EditorWindow
         }
     }
 
-    GameObject GetCatalogObject(float r, int angularDensity)
-    {
-        InventoryEntry entry = inventory[selectedItem];
-        if (entry.universal)
-        {
-            return entry[0][0];
-        }
-        else
-        {
-            return entry[angularDensity][Mathf.RoundToInt(r)];
-        }
-
-        return null;
-    }
-
     void PopulateStock()
     {
-        Debug.LogWarning("Populating...");
         if (CatalogLoaded)
         {
             inventory = new List<InventoryEntry>();
             for (int i = 0; i < Catalog.Count; i++)
             {
                 InventoryEntry entry = new InventoryEntry();
-                TileEditorCatalog.CatalogEntry category = Catalog[i];
-                for (int j = 0; j < category.Count; j++)
-                {
-                    string name = category[j].name;
-                    string suffix = name.Substring(category.prefabNamePrefix.Length);
-                    string[] parameters = suffix.Split(new char[] { '_' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    int radius, angularDensity;
-                    if (parameters.Length == 2)
-                    {
-                        radius = int.Parse(parameters[0]);
-                        angularDensity = int.Parse(parameters[1]);
-                    }
-                    else
-                    {
-                        entry.universal = true;
-                        radius = angularDensity = 0;
-                    }
-                    SortedDictionary<int, GameObject> column;
-                    if (entry.stock.TryGetValue(angularDensity, out column))
-                        try
-                        {
-                            column.Add(radius, category[j]);
-                        }
-                        catch
-                        {
-                            Debug.LogWarning("Multiple entries of '" + entry.displayName + "' at {R=" + radius + ", divs=" + angularDensity + "} in '" + Catalog.name + ". Cannot add prefab '" + name + "' to Tile Editor.", Catalog);
-                        }
-                    else
-                    {
-                        column = new SortedDictionary<int, GameObject>();
-                        column.Add(radius, category[j]);
-                        entry.stock.Add(angularDensity, column);
-                    }
-                    if (entry.universal)
-                    {
-                        if (category.Count > 1)
-                            Debug.LogWarning("Error parsing entry '" + name + "' of '" + entry.displayName + "' in TileEditorCatalog '" + Catalog.name + "'.", Catalog);
-                        break;
-                    }
-                }
+                entry.displayName = Catalog[i].displayName;
+                entry.displayIcon = Catalog[i].displayIcon;
+                entry.prefab = Catalog[i].prefab;
+                entry.isArc = entry.prefab.GetComponent<ArcTile>() != null;
                 inventory.Add(entry);
             }
+        }
+    }
+
+    void RemoveGhosts()
+    {
+        // Remove stuck ghosts from a previous session
+        GhostPlaceholder[] formerGhosts = FindObjectsOfType<GhostPlaceholder>();
+        foreach (GhostPlaceholder formerGhost in formerGhosts)
+        {
+            DestroyImmediate(formerGhost.gameObject);
+        }
+    }
+
+    // Place new ghost
+    void PlaceSingleGhost(Vector3 pos)
+    {
+        ghost = Instantiate(inventory[selectedItem].prefab, pos, GetRotator(pos));
+        if (inventory[selectedItem].isArc)
+        {
+            float rad = pos.magnitude;
+            ghost.GetComponent<ArcTile>().SetParams(rad - radialThickness, rad, 1, GetAngularGridDensity(rad), 768, 0);
+        }
+        ghost.hideFlags |= HideFlags.HideInHierarchy;
+        ghost.AddComponent<GhostPlaceholder>();
+    }
+
+    // Update ghost attitude
+    void UpdateSingleGhost(Vector3 pos)
+    {
+        ghost.transform.position = pos;
+        ghost.transform.rotation = GetRotator(ghost.transform.position);
+        if (inventory[selectedItem].isArc)
+        {
+            float rad = pos.magnitude;
+            ghost.GetComponent<ArcTile>().SetParams(rad - radialThickness, rad, 1, GetAngularGridDensity(rad), 768, 0);
+        }
+    }
+
+    void PlaceWallGhost()
+    {
+        if (inventory[selectedItem].isArc)
+        {
+            ghost = Instantiate(inventory[selectedItem].prefab, wallFirstPosition, GetRotator(wallFirstPosition));
+            ghost.hideFlags |= HideFlags.HideInHierarchy;
+            float rad = wallFirstPosition.magnitude;
+            ghost.GetComponent<ArcTile>().SetParams(rad - radialThickness, rad, 1, GetAngularGridDensity(rad), 768, 0);
+            ghost.AddComponent<GhostPlaceholder>();
+        }
+    }
+
+    void UpdateWallGhost(Vector3 pos)
+    {
+        if (inventory[selectedItem].isArc)
+        {
+            float rad2 = pos.magnitude;
+            if (rad2 < wallFirstRadius)
+            {
+                ghost.transform.position = wallFirstPosition;
+                ghost.GetComponent<ArcTile>().SetParams(rad2 - radialThickness, wallFirstRadius, 1, GetAngularGridDensity(wallFirstRadius), 768, 0);
+            }
+            else if (rad2 > wallFirstRadius)
+            {
+                ghost.transform.position = Vector3.Normalize(wallFirstPosition) * rad2;
+                ghost.GetComponent<ArcTile>().SetParams(wallFirstRadius - radialThickness, rad2, 1, GetAngularGridDensity(wallFirstRadius), 768, 0);
+            }
+        }
+    }
+
+    void PlaceArcGhost()
+    {
+        if (inventory[selectedItem].isArc)
+        {
+            ghost = Instantiate(inventory[selectedItem].prefab, arcFirstPosition, GetRotator(arcFirstPosition));
+            ghost.hideFlags |= HideFlags.HideInHierarchy;
+            arcRadius = arcFirstPosition.magnitude;
+            ghost.GetComponent<ArcTile>().SetParams(arcRadius - radialThickness, arcRadius, 1, GetAngularGridDensity(arcRadius), 768, 0);
+            ghost.AddComponent<GhostPlaceholder>();
+        }
+    }
+
+    void UpdateArcGhost(Vector3 pos)
+    {
+        if (inventory[selectedItem].isArc)
+        {
+            int angularGridDensity = GetAngularGridDensity(arcRadius);
+            int nominator = Mathf.RoundToInt(Vector2.Angle(arcFirstPosition, pos) * angularGridDensity / 360f) + 1;
+            Debug.Log(nominator);
+            ghost.transform.position = Vector3.Normalize(arcFirstPosition / arcRadius + Vector3.Normalize(pos)) * arcRadius;
+            ghost.transform.rotation = GetRotator(ghost.transform.position);
+            ghost.GetComponent<ArcTile>().SetParams(arcRadius - radialThickness, arcRadius, nominator, angularGridDensity, 768, 0);
+        }
+    }
+
+    void CheckCatalog()
+    {
+        if (Catalog == null)
+        {
+            TileEditorCatalog[] catalogs = Resources.FindObjectsOfTypeAll<TileEditorCatalog>();
+            if (catalogs.Length > 0) Catalog = catalogs[0];
+        }
+        else
+        {
+            if (inventory == null)
+                PopulateStock();
         }
     }
 }
