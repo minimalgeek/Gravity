@@ -14,7 +14,16 @@ public class TileGUI : EditorWindow
     public TileEditorCatalog Catalog
     {
         get { return _catalog; }
-        set { _catalog = value; _catalogLoaded = value != null; PopulateStock(); }
+        set
+        {
+            _catalogLoaded = _catalog != null;
+            if (_catalog == null || _catalog != value)
+            {
+                _catalog = value;
+                _catalogLoaded = value != null;
+                PopulateStock();
+            }
+        }
     }
     bool _catalogLoaded = false;
     public bool CatalogLoaded
@@ -142,17 +151,19 @@ public class TileGUI : EditorWindow
 
         GUILayout.Label("Object Placement", EditorStyles.boldLabel);
 
-        if (CatalogLoaded)
+        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
         {
             placingMode = GUILayout.SelectionGrid(placingMode, placingModes, placingModes.Length, "button");
             if (PlacingMode != PlacingModes.Off) Tools.current = Tool.None;
-            else if (Tools.current == Tool.None) Tools.current = Tool.View;
+            else if (Tools.current == Tool.None) Tools.current = Tool.Move;
         }
 
         #region Rotation controls
         EditorGUILayout.BeginHorizontal();
-        if (CatalogLoaded)
+        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
+        {
             autoRotateEnabled = EditorGUILayout.Toggle("Auto rotate", autoRotateEnabled);
+        }
         GUILayout.Button(new GUIContent("↺", "Rotate 90° CCW"), GUILayout.Width(20));
         if (GUILayout.Button("Rotate Selection", GUILayout.ExpandWidth(false)))
             RotateSelection();
@@ -161,7 +172,7 @@ public class TileGUI : EditorWindow
         #endregion Rotation controls
 
         #region Radial and angular snapping controls
-        if (CatalogLoaded)
+        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -197,6 +208,13 @@ public class TileGUI : EditorWindow
         EditorGUILayout.Space();
 
         //block = (GameObject)EditorGUILayout.ObjectField("Prefab", block, typeof(GameObject), false);
+
+        if (CatalogLoaded && !inventory[selectedItem].universal)
+        {
+            int[] keys = new int[inventory[selectedItem].stock.Keys.Count];
+            inventory[selectedItem].stock.Keys.CopyTo(keys, 0);
+            GUILayout.SelectionGrid(0, System.Array.ConvertAll(keys, x => x.ToString()), keys.Length, "button");
+        }
 
         #region Catalog
         if (CatalogLoaded)
@@ -552,6 +570,7 @@ public class TileGUI : EditorWindow
 
     void PopulateStock()
     {
+        Debug.LogWarning("Populating...");
         if (CatalogLoaded)
         {
             inventory = new List<InventoryEntry>();
@@ -563,7 +582,7 @@ public class TileGUI : EditorWindow
                 {
                     string name = category[j].name;
                     string suffix = name.Substring(category.prefabNamePrefix.Length);
-                    string[] parameters = suffix.Split('_');
+                    string[] parameters = suffix.Split(new char[] { '_' }, System.StringSplitOptions.RemoveEmptyEntries);
                     int radius, angularDensity;
                     if (parameters.Length == 2)
                     {

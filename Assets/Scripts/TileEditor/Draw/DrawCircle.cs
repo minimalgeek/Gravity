@@ -43,7 +43,7 @@ public class DrawCircle : MonoBehaviour
 
     void Start()
     {
-		line = GetOrAddComponent<LineRenderer>();
+        line = GetOrAddComponent<LineRenderer>();
 		polyCollider = GetOrAddComponent<PolygonCollider2D>();
 		
         line.useWorldSpace = false;
@@ -116,7 +116,7 @@ public class DrawCircle : MonoBehaviour
         List<Vector2> lowerPath = new List<Vector2>();
         for (int i = 0; i < realSegments + 1; i++)
         {
-            Debug.Log(angle);
+            //Debug.Log(angle);
             x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
             y = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
 
