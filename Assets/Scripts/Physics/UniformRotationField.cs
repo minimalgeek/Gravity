@@ -71,7 +71,6 @@ public class UniformRotationField : MonoBehaviour
 
     public void Recalculate()
     {
-        Debug.Log("R");
         omega = Vector3.forward * angularVelocity;
         omega2 = omega * 2;
         centrifugalFactor = angularVelocity * angularVelocity;
