@@ -4,7 +4,7 @@
 public class UniformRotationField : MonoBehaviour
 {
     [SerializeField]
-    private float angularVelocity = 0.7f;
+    private float angularVelocity = -0.7f;
     [SerializeField]
     private float angularFrequency;
     [SerializeField]
@@ -65,13 +65,13 @@ public class UniformRotationField : MonoBehaviour
 
     void Start()
     {
-        AngularVelocity = 0.7f;
+        AngularVelocity = angularVelocity;
         Recalculate();
     }
 
     public void Recalculate()
     {
-        omega = Vector3.forward * angularVelocity;
+        omega = Vector3.back * angularVelocity;
         omega2 = omega * 2;
         centrifugalFactor = angularVelocity * angularVelocity;
     }
@@ -103,4 +103,22 @@ public class UniformRotationField : MonoBehaviour
     //{
     //    return 
     //}
+
+
+
+
+    void OnDrawGizmosSelected()
+    {
+        // Display the explosion radius when selected
+        Gizmos.color = new Color(0, 0, 1, 0.75F);
+        Gizmos.DrawLine(Vector2.one, -Vector2.one);
+        Gizmos.DrawLine(new Vector2(1, -1), new Vector2(-1, 1));
+        int direction = (int)Mathf.Sign(angularFrequency);
+        if (direction != 0)
+        {
+            Gizmos.DrawLine(new Vector2(-1.5f, -2), new Vector2(1.5f, -2));
+            Gizmos.DrawLine(new Vector2(-1.5f * direction, -2f), new Vector2(-1 * direction, -1.8f));
+            Gizmos.DrawLine(new Vector2(-1.5f * direction, -2f), new Vector2(-1 * direction, -2.2f));
+        }
+    }
 }

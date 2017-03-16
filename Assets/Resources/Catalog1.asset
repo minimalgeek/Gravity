@@ -26,7 +26,7 @@ MonoBehaviour:
     displayIcon: {fileID: 0}
     prefab: {fileID: 1657665471056444, guid: 3e45936dfb6382d49a686640f7241e2d, type: 2}
   - displayName: Turret
-    displayIcon: {fileID: 0}
+    displayIcon: {fileID: 2800000, guid: 9ab9558968b969143ace1c2c4c883032, type: 3}
     prefab: {fileID: 150636, guid: 644017667febda947ac49a78018ba33d, type: 2}
   - displayName: Saw
     displayIcon: {fileID: 0}
@@ -34,3 +34,9 @@ MonoBehaviour:
   - displayName: Ball
     displayIcon: {fileID: 0}
     prefab: {fileID: 181860, guid: 479c801a726ebd04ab578b06308443f1, type: 2}
+  - displayName: Hint Dropper
+    displayIcon: {fileID: 2800000, guid: 0c6dc42f345f15e44860facbd7c1c8b7, type: 3}
+    prefab: {fileID: 1952541922000134, guid: e5216047846afff42bbf946534dc61f5, type: 2}
+  - displayName: Hint Fountain
+    displayIcon: {fileID: 2800000, guid: 0c6dc42f345f15e44860facbd7c1c8b7, type: 3}
+    prefab: {fileID: 1898505540097060, guid: 436ba45e0f9ea0944a74cf773a42b2ae, type: 2}

@@ -7,7 +7,7 @@ using DG.Tweening;
 
 public class CharacterController : GLMonoBehaviour
 {
-    public float jumpForce = 10f;
+    public float jumpSpeed = 10f;
     public float moveSpeed = 5f;
     public float slowDownSpeed = 2f;
     public CollisionDetector groundDetector;
@@ -59,7 +59,7 @@ public class CharacterController : GLMonoBehaviour
             // jumping
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                rb.AddForce(this.transform.up * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(this.transform.up * jumpSpeed * rb.mass, ForceMode2D.Impulse);
             }
         }
         else if (!upperDetected && lowerDetected)

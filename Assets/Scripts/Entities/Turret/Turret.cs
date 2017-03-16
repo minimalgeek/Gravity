@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.EventSystems;
 using System;
 
-public class Turret : MonoBehaviour, IPointerClickHandler
+public class Turret : MonoBehaviour
 {
     public GameObject projectile;
+    public float despawnTime = 60;
     private GameObject instance;
     private GameObject reticle;
 
@@ -34,28 +34,22 @@ public class Turret : MonoBehaviour, IPointerClickHandler
 
     void Shoot()
     {
-        instance.GetComponent<Rigidbody2D>().velocity = reticle.transform.position - instance.transform.position;
+        Rigidbody2D rb = instance.GetComponent<Rigidbody2D>();
+        rb.simulated = true;
+        rb.velocity = reticle.transform.position - instance.transform.position;
         foreach (Collider2D coll in instance.GetComponents<Collider2D>())
         {
             coll.enabled = true;
         }
+        instance.AddComponent<DelayedRemove>().removeDelay = despawnTime;
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnMouseDown()
     {
-        Shoot();
-        Spawn();
+        if (Input.GetMouseButtonDown(0))
+        {
+            Shoot();
+            Spawn();
+        }
     }
-
-
-    //private float since = 0f;
-    //void Update()
-    //{
-    //    since += Time.deltaTime;
-    //    if (since > 0.001)
-    //    {
-    //        OnPointerClick(null);
-    //        since = 0f;
-    //    }
-    //}
 }

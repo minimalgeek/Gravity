@@ -27,7 +27,6 @@ public class UniformRotationFieldEditor : Editor
             EditorGUILayout.DelayedFloatField(omega, new GUIContent("Angular Velocity (rad/s)"));
             if (check.changed)
             {
-                Debug.Log("ch");
                 field.AngularVelocity = omega.floatValue;
                 frequency.floatValue = field.AngularFrequency;
                 period.floatValue = field.Period;
