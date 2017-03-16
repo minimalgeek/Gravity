@@ -11,6 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33c2b32c28edd164a90ebf884ad0cc62, type: 3}
   m_Name: Catalog1
   m_EditorClassIdentifier: 
+  player: {fileID: 1847007308799620, guid: 931f9774d107e55498b60401053f27c3, type: 2}
+  camera: {fileID: 1741020209114354, guid: fa4b89a7aaac39e48926b64104e4f988, type: 2}
+  forceField: {fileID: 1826265351075444, guid: 7c54b70f3fcb36140b66ff503be681cf, type: 2}
+  lights: {fileID: 1084417834244948, guid: 823d7568d9bd86c4faef6b23ce24464f, type: 2}
   placableObjects:
   - displayName: Arc
     displayIcon: {fileID: 2800000, guid: d5f1caf915e9e8149bbfcb3221fdbdf0, type: 3}
@@ -21,3 +25,12 @@ MonoBehaviour:
   - displayName: Star
     displayIcon: {fileID: 0}
     prefab: {fileID: 1657665471056444, guid: 3e45936dfb6382d49a686640f7241e2d, type: 2}
+  - displayName: Turret
+    displayIcon: {fileID: 0}
+    prefab: {fileID: 150636, guid: 644017667febda947ac49a78018ba33d, type: 2}
+  - displayName: Saw
+    displayIcon: {fileID: 0}
+    prefab: {fileID: 1368418891687878, guid: e437ae8259ba67a4494d8176b8f6bae7, type: 2}
+  - displayName: Ball
+    displayIcon: {fileID: 0}
+    prefab: {fileID: 181860, guid: 479c801a726ebd04ab578b06308443f1, type: 2}

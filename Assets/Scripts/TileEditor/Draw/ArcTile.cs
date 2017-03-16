@@ -75,7 +75,7 @@ public class ArcTile : MonoBehaviour
     {
         try
         {
-            int realSegments = angularResolution * arcNumerator / arcDenominator;
+            int realSegments = Mathf.Max(angularResolution * arcNumerator / arcDenominator, 1);
             line.startWidth = outerRadius - innerRadius;
             line.endWidth = line.startWidth;
             line.numPositions = realSegments + 1;
