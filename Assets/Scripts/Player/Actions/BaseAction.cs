@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Gamelogic.Extensions;
 using System;
+using DG.Tweening;
 
 public enum KeyDirection
 {
@@ -14,11 +15,15 @@ public class BaseAction : GLMonoBehaviour, IAction
 
     public KeyDirection keyDirectionToTrigger = KeyDirection.KeyUp;
 
-	private bool executionEnabled = false;
+	protected bool executionEnabled = false;
+
+    protected GameObject player;
 
 	protected void Start() {
 		BoxCollider2D collider = this.GetOrAddComponent<BoxCollider2D>();
 		collider.isTrigger = true;
+
+        player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
 	}
 
     void Update()

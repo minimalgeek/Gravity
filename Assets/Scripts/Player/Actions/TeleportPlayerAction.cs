@@ -6,16 +6,10 @@ using DG.Tweening;
 
 public class TeleportPlayerAction : BaseAction {
 
-	private GameObject player;
 	public TeleportPlayerAction destination;
 
 	void Awake() {
 		Assert.IsNotNull(destination);
-	}
-
-	new void Start () {
-		base.Start();
-		player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
 	}
 
 	public override void Execute() {

@@ -14,7 +14,9 @@ public class CharacterController : GLMonoBehaviour
     public CollisionDetector climbUpperDetector;
     public CollisionDetector climbLowerDetector;
     public Transform toClimbRelativePos;
+    public GameObject itemHoldingPoint;
     private Rigidbody2D rb;
+    private MirrorToInput facingController;
     private bool grounded;
     private bool upperDetected, lowerDetected, isClimbing; // all climbing related booleans
 
@@ -25,6 +27,8 @@ public class CharacterController : GLMonoBehaviour
         Assert.IsNotNull(climbLowerDetector);
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
+        facingController = GetComponentInChildren<MirrorToInput>();
+        Assert.IsNotNull(facingController);
     }
 
     void Start()
@@ -82,6 +86,10 @@ public class CharacterController : GLMonoBehaviour
         {
             isClimbing = false;
         }
+    }
+
+    public Facing GetFacingDirection() {
+        return facingController.facing;
     }
 
     private Vector2 GetLocalVelocity()
