@@ -23,6 +23,12 @@ public class SwitchGravityFieldRotationSpeedAction : BaseAction {
 		Assert.IsTrue(states.Length > 1, "Provide at least 2 states");
 	}
 
+	new void Start() {
+		base.Start();
+		StateAndAnimation currentState = states[currentIndex];
+		Gravity.Instance.AngularVelocity = currentState.angularVelocity;
+	}
+
 	public override void Execute() {
 		currentIndex = (currentIndex+1)%states.Length;
 		StateAndAnimation currentState = states[currentIndex];
