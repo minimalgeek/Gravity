@@ -117,7 +117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyDirectionToTrigger: 0
   states:
-  - angularVelocity: 0.5
+  - angularVelocity: 0.4
     animationClip: {fileID: 7400000, guid: 20ff871f0a8b38645893f2be333e0f72, type: 2}
   - angularVelocity: 1
     animationClip: {fileID: 7400000, guid: 2dcf7927034220241baac5ca5f243b8b, type: 2}
