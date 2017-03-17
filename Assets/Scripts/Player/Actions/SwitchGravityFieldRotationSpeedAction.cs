@@ -6,7 +6,7 @@ using System;
 
 [Serializable]
 public class StateAndAnimation {
-	[Range(0.0f, 4.0f)]
+	[Range(-4.0f, 4.0f)]
 	public float angularVelocity;
 	public AnimationClip animationClip;
 }
