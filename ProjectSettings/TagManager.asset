@@ -39,11 +39,14 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Default
-    uniqueID: 0
-    locked: 0
   - name: Background Particles
     uniqueID: 587752279
+    locked: 0
+  - name: Used Items
+    uniqueID: 19898147
+    locked: 0
+  - name: Default
+    uniqueID: 0
     locked: 0
   - name: AboveEverything
     uniqueID: 2914804935
