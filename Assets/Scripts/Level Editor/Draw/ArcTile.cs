@@ -26,9 +26,9 @@ public class ArcTile : MonoBehaviour
     [Delayed]
     private int arcDenominator = 192;
 
-    [SerializeField]
-    [Delayed]
-    private float zOffset = 0;
+    //[SerializeField]
+    //[Delayed]
+    //private float zOffset = 0;
 
     private PolygonCollider2D polyCollider;
     private LineRenderer line;
@@ -67,7 +67,7 @@ public class ArcTile : MonoBehaviour
         this.arcNumerator = arcNumerator;
         this.arcDenominator = arcDenominator;
         this.angularResolution = angularResolution;
-        this.zOffset = zOffset;
+        transform.position = transform.position.WithZ(zOffset);
         CreatePoints();
     }
 

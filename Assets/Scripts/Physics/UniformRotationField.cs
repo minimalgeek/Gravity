@@ -93,10 +93,7 @@ public class UniformRotationField : MonoBehaviour
 
     public float GetTangentialSpeed(float radius)
     {
-        //return tangentialVelocity * radius / this.radius; // Mathf.Sqrt(surfaceGravity / atRadius) * radius;
-        //TODO
-        Debug.LogWarning("TODO: Tangential Speed/Velocity");
-        return 0;
+        return angularVelocity * radius;
     }
 
     //public Vector2 GetTangentialVelocity(Vector2 pos)

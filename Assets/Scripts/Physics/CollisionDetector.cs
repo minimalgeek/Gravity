@@ -16,7 +16,8 @@ public class CollisionDetector : GLMonoBehaviour
     {
         if ((1 << other.gameObject.layer) == groundLayer)
         {
-            TriggerStay();
+            if (TriggerStay != null)
+                TriggerStay();
         }
     }
 
@@ -24,7 +25,8 @@ public class CollisionDetector : GLMonoBehaviour
     {
         if ((1 << other.gameObject.layer) == groundLayer)
         {
-            TriggerLeave();
+            if (TriggerLeave != null)
+                TriggerLeave();
         }
     }
 }
