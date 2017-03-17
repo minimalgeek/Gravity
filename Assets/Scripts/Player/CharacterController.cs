@@ -97,7 +97,7 @@ public class CharacterController : GLMonoBehaviour
         return transform.InverseTransformDirection(rb.velocity);
     }
 
-    private void SetLocalVelocity(Vector2 newVelocity)
+    public void SetLocalVelocity(Vector2 newVelocity)
     {
         rb.velocity = transform.TransformDirection(newVelocity);
     }

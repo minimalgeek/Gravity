@@ -13,23 +13,30 @@ public class ItemPickupAction : BaseAction {
 	private bool pickedUpByPlayer;
 	private Transform holdingPoint;
 
-	private Collider2D physicsCollider;
+	private BoxCollider2D physicsCollider;
+	private BoxCollider2D pickupCollider;
 	private Rigidbody2D rb;
 
-	private CharacterController charController;
 	private ToCenterRotator toCenterRotator;
 
 	new void Start () {
 		base.Start();
-		charController = player.GetComponent<CharacterController>();
-		holdingPoint = charController.itemHoldingPoint.transform;
+		holdingPoint = characterController.itemHoldingPoint.transform;
 		toCenterRotator = GetComponent<ToCenterRotator>();
 
 		rb = GetComponent<Rigidbody2D>();
-		physicsCollider = Array.Find(GetComponents<Collider2D>(), x => x.isTrigger == false);
+		physicsCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == false);
 
 		Assert.IsNotNull(rb);
 		Assert.IsNotNull(physicsCollider);
+
+		pickupCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == true);
+		if (!pickupCollider) {
+			pickupCollider = this.gameObject.AddComponent<BoxCollider2D>();
+			pickupCollider.size = physicsCollider.size*2;
+			pickupCollider.offset = physicsCollider.offset;
+			pickupCollider.isTrigger = true;
+		}
 	}
 	
 	public override void Execute() {
@@ -41,7 +48,7 @@ public class ItemPickupAction : BaseAction {
 			transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
 		} else {
 			SetPickedUp(false);
-			float yForce = charController.GetFacingDirection() == Facing.RIGHT ? throwSpeed : -throwSpeed;
+			float yForce = characterController.GetFacingDirection() == Facing.RIGHT ? throwSpeed : -throwSpeed;
 			rb.AddForce(Vector3.zero.WithY(yForce), ForceMode2D.Impulse);
 			this.transform.SetParent(null);
 		}

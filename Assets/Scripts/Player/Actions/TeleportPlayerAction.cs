@@ -21,6 +21,7 @@ public class TeleportPlayerAction : BaseAction {
 		player.transform.DOMove(transform.position, 0.5f);
 		yield return new WaitForSeconds(0.5f);
 		player.transform.position = destination.transform.position;
+		characterController.SetLocalVelocity(Vector2.zero);
 		player.transform.DOScale(1f, 0.5f);
 	}
 	

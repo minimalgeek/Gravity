@@ -18,12 +18,11 @@ public class BaseAction : GLMonoBehaviour, IAction
 	protected bool executionEnabled = false;
 
     protected GameObject player;
+    protected CharacterController characterController;
 
 	protected void Start() {
-		BoxCollider2D collider = this.GetOrAddComponent<BoxCollider2D>();
-		collider.isTrigger = true;
-
-        player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
+		player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
+        characterController = player.GetComponent<CharacterController>();
 	}
 
     void Update()
