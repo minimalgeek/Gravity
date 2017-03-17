@@ -7,7 +7,7 @@ using System;
 [Serializable]
 public class StateAndAnimation {
 	[Range(0.0f, 4.0f)]
-	public float state;
+	public float angularVelocity;
 	public AnimationClip animationClip;
 }
 
@@ -28,7 +28,7 @@ public class SwitchGravityFieldRotationSpeedAction : BaseAction {
 		StateAndAnimation currentState = states[currentIndex];
 
 		animator.Play(currentState.animationClip.name);
-		Gravity.Instance.AngularVelocity = currentState.state;
+		Gravity.Instance.AngularVelocity = currentState.angularVelocity;
 	}
 
 }

@@ -549,6 +549,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 114205024607603174, guid: c2c05ed36d613c447827ba8b0ac45ad9,
+        type: 2}
+      propertyPath: states.Array.data[0].angularVelocity
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114205024607603174, guid: c2c05ed36d613c447827ba8b0ac45ad9,
+        type: 2}
+      propertyPath: states.Array.data[1].angularVelocity
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c2c05ed36d613c447827ba8b0ac45ad9, type: 2}
   m_IsPrefabParent: 0
