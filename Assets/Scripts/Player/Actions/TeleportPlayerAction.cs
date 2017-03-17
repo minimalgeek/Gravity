@@ -24,6 +24,7 @@ public class TeleportPlayerAction : BaseAction {
 
 	private IEnumerator Teleport() {
 		player.transform.DOScale(0.1f, 0.5f);
+		player.transform.DOMove(transform.position, 0.5f);
 		yield return new WaitForSeconds(0.5f);
 		player.transform.position = destination.transform.position;
 		player.transform.DOScale(1f, 0.5f);
