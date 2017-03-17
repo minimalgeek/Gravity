@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 114546159220251488}
   m_Layer: 0
   m_Name: GravitationField
-  m_TagString: Untagged
+  m_TagString: MainForceField
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

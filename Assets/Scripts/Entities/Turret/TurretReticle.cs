@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.EventSystems;
-using System;
 
-public class TurretReticle : MonoBehaviour, IDragHandler
+public class TurretReticle : MonoBehaviour
 {
     LineRenderer line;
 
@@ -12,9 +9,9 @@ public class TurretReticle : MonoBehaviour, IDragHandler
         line = transform.parent.gameObject.GetComponent<LineRenderer>();
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnMouseDrag()
     {
-        transform.position = (Vector2)Camera.main.ScreenToWorldPoint(eventData.position);
+        transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         line.SetPosition(1, transform.position);
     }
 }

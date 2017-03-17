@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 50533940403664034}
   - component: {fileID: 58682615085030814}
   - component: {fileID: 114688933367318710}
-  - component: {fileID: 114369936273304604}
+  - component: {fileID: 114662127687111108}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -251,7 +251,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1274685884493750}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.294, y: 0.086, z: 0}
+  m_LocalPosition: {x: 0, y: 0.086, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4606627324517238}
@@ -385,7 +385,7 @@ TrailRenderer:
   m_Time: 5
   m_Parameters:
     serializedVersion: 2
-    widthMultiplier: 0.25
+    widthMultiplier: 0.15
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -397,7 +397,7 @@ TrailRenderer:
         tangentMode: 0
       - serializedVersion: 2
         time: 1
-        value: 0
+        value: 0.18627453
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -407,22 +407,22 @@ TrailRenderer:
     colorGradient:
       key0:
         serializedVersion: 2
-        rgba: 4294967295
+        rgba: 4294961600
       key1:
         serializedVersion: 2
-        rgba: 4294967295
+        rgba: 4294960303
       key2:
         serializedVersion: 2
-        rgba: 0
+        rgba: 4294958752
       key3:
         serializedVersion: 2
-        rgba: 0
+        rgba: 4294957456
       key4:
         serializedVersion: 2
-        rgba: 0
+        rgba: 16765824
       key5:
         serializedVersion: 2
-        rgba: 0
+        rgba: 65280
       key6:
         serializedVersion: 2
         rgba: 0
@@ -430,24 +430,24 @@ TrailRenderer:
         serializedVersion: 2
         rgba: 0
       ctime0: 0
-      ctime1: 65535
-      ctime2: 0
-      ctime3: 0
-      ctime4: 0
-      ctime5: 0
+      ctime1: 16384
+      ctime2: 32768
+      ctime3: 49151
+      ctime4: 65535
+      ctime5: 65535
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 65535
-      atime2: 0
-      atime3: 0
-      atime4: 0
+      atime1: 16384
+      atime2: 32768
+      atime3: 49151
+      atime4: 65535
       atime5: 0
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_NumColorKeys: 2
-      m_NumAlphaKeys: 2
+      m_NumColorKeys: 5
+      m_NumAlphaKeys: 5
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
@@ -507,17 +507,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
---- !u!114 &114369936273304604
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1847007308799620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 445480490c1473b41a3cebd13890f2b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114476969429747314
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -532,6 +521,18 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1170707904264086, guid: b86704aa076b3834cb7b7e8d3991ccfc,
     type: 2}
   bulletImpulse: 25
+--- !u!114 &114662127687111108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1847007308799620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c478dd44c7aa05b49b307c46c1d2d297, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  autoRotate: 1
 --- !u!114 &114688933367318710
 MonoBehaviour:
   m_ObjectHideFlags: 1
