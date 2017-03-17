@@ -126,7 +126,6 @@ public class LevelEditorGUI : EditorWindow
 
     private float radialThickness = 0.25f;
     int selectedRadialThickness = 0;
-    private int radialGridDensity = 2;
 
     #endregion Fields
 
@@ -718,8 +717,7 @@ public class LevelEditorGUI : EditorWindow
     {
         foreach (GameObject obj in Selection.gameObjects)
         {
-            if (obj.transform.IsChildOf(rootTransform))
-                obj.transform.rotation = GetRotator(obj.transform.position, true);
+            obj.transform.rotation = GetRotator(obj.transform.position, true);
         }
     }
 

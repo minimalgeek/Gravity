@@ -36,7 +36,6 @@ public class ArcMesh : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
         CreatePoints();
     }
 
@@ -67,6 +66,7 @@ public class ArcMesh : MonoBehaviour
     {
         polyCollider = GetOrAddComponent<PolygonCollider2D>();
         meshFilter = GetOrAddComponent<MeshFilter>();
+        meshFilter.hideFlags |= HideFlags.NotEditable;
         if (mesh == null)
             meshFilter.mesh = mesh = new Mesh();
 
@@ -82,7 +82,6 @@ public class ArcMesh : MonoBehaviour
         Vector2 offset = Vector2.up * outerRadius;
 
         float innerPerOuter = innerRadius / outerRadius;
-        float meanPerOuter = (innerRadius + outerRadius) / (outerRadius * 2f);
 
         List<Vector2> outerPath = new List<Vector2>();
         List<Vector2> innerPath = new List<Vector2>();
@@ -93,8 +92,8 @@ public class ArcMesh : MonoBehaviour
         {
             outerPath.Add(pos + offset);
             innerPath.Add(pos * innerPerOuter + offset);
-            vertices[i * 2] = outerPath[i];
-            vertices[i * 2 + 1] = innerPath[i];
+            vertices[i * 2] = (Vector3)outerPath[i] + Vector3.forward * zOffset;
+            vertices[i * 2 + 1] = (Vector3)innerPath[i] + Vector3.forward * zOffset;
             normals[i * 2] = Vector3.back;
             normals[i * 2 + 1] = Vector3.back;
             uvs[i * 2] = Vector2.right * ((float)i / realSegments);

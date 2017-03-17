@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 public class CrudeController : MonoBehaviour
 {
     public float horizontalAcceleration = 8;
     public float maxTSpeed = 8;
     public float jumpSpeed = 8;
+    public float deceleration = 20;
 
     private Rigidbody2D rb;
     private LineRenderer velociLine;
@@ -13,23 +15,82 @@ public class CrudeController : MonoBehaviour
     private float zoomMultiplier = 1.3f;
     private bool following = true;
 
-    private CrudeGroundDetector groundDetector;
+    public CollisionDetector groundDetector;
     private bool isGrounded;
+
+    public CollisionDetector groundSinkDetector;
+    private bool isSunken;
 
     public bool intertiaTrace = true;
     private Transform background;
     private Object tracer;
 
+    private bool doJump;
+    private bool doLeftJump;
+    private bool doRightJump;
+    private float tangentialAxis;
+
+    void Awake()
+    {
+        Assert.IsNotNull(groundDetector);
+        Assert.IsNotNull(groundSinkDetector);
+        rb = GetComponent<Rigidbody2D>();
+        Assert.IsNotNull(rb);
+    }
+
     void Start()
     {
+        groundDetector.TriggerStay += OnGroundDetectorTriggerStay;
+        groundDetector.TriggerLeave += OnGroundDetectorTriggerLeave;
+
+        groundSinkDetector.TriggerStay += OnGroundSinkStay;
+        groundSinkDetector.TriggerLeave += OnGroundSinkLeave;
+
         rb = GetComponentInChildren<Rigidbody2D>();
-        groundDetector = GetComponentInChildren<CrudeGroundDetector>();
-        //cam = GetComponentInChildren<Camera>();
-        cam = GameObject.Find("Main Camera").GetComponent<Camera>();
+        Debug.Log(groundDetector);
+        cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         velociLine = GetComponentInChildren<LineRenderer>();
 
-        background = GameObject.Find("Background").transform;
-        tracer = Resources.Load("Tracer", typeof(GameObject));
+        try
+        {
+            background = GameObject.Find("Background").transform;
+        }
+        catch { }
+        try
+        {
+            tracer = Resources.Load("Tracer", typeof(GameObject));
+        }
+        catch { }
+    }
+
+    public void OnGroundDetectorTriggerStay()
+    {
+        Debug.LogWarning("     GS");
+        isGrounded = true;
+
+        if (!doJump && !doLeftJump && !doRightJump)
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        }
+    }
+
+    public void OnGroundDetectorTriggerLeave()
+    {
+        Debug.LogWarning("       GL");
+        isGrounded = false;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+    }
+
+    public void OnGroundSinkStay()
+    {
+        Debug.LogWarning("S");
+        isSunken = true;
+    }
+
+    public void OnGroundSinkLeave()
+    {
+        Debug.LogWarning("  L");
+        isSunken = false;
     }
 
     void Update()
@@ -39,6 +100,12 @@ public class CrudeController : MonoBehaviour
             rb.rotation = Mathf.Atan2(rb.position.x, -rb.position.y) * Mathf.Rad2Deg;
             if (following) cam.transform.rotation = rb.transform.rotation;
         }
+
+        tangentialAxis = Input.GetAxis("Horizontal");
+
+        doJump |= Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W);
+        doLeftJump |= Input.GetKeyDown(KeyCode.Q);
+        doRightJump |= Input.GetKeyDown(KeyCode.E);
     }
 
     void LateUpdate()
@@ -66,7 +133,9 @@ public class CrudeController : MonoBehaviour
 
     void FixedUpdate()
     {
-        isGrounded = groundDetector.grounded;
+        //isGrounded = groundDetector.grounded;
+        if (!isGrounded) rb.bodyType = RigidbodyType2D.Dynamic;
+        Debug.Log(isGrounded + "  " + rb.isKinematic + "  s: " + isSunken);
 
         if (Input.GetKey(KeyCode.S))
             rb.velocity = -rb.transform.up * Mathf.Abs(Vector2.Dot(rb.velocity, rb.transform.up));
@@ -74,45 +143,68 @@ public class CrudeController : MonoBehaviour
         {
             if (isGrounded)
             {
+                if (isSunken)
+                    rb.MovePosition(rb.position + (Vector2)rb.transform.up * 0.05f);
+
                 float currentTSpeed = Vector2.Dot(rb.velocity, rb.transform.right);
-                float TAxis = Input.GetAxis("Horizontal");
-                if (TAxis > 0)
+                if (tangentialAxis > 0)
                 {
                     if (currentTSpeed < maxTSpeed)
-                        rb.AddRelativeForce(Vector2.right * TAxis * rb.mass * horizontalAcceleration);
+                    {
+                        if (rb.isKinematic)
+                            rb.velocity = rb.transform.right * maxTSpeed;
+                        else
+                            rb.AddRelativeForce(Vector2.right * tangentialAxis * rb.mass * horizontalAcceleration);
+                    }
                 }
-                else if (TAxis < 0)
+                else if (tangentialAxis < 0)
                 {
                     if (currentTSpeed > -maxTSpeed)
-                        rb.AddRelativeForce(Vector2.right * TAxis * rb.mass * horizontalAcceleration);
+                    {
+                        if (rb.isKinematic)
+                            rb.velocity = rb.transform.right * (-maxTSpeed);
+                        else
+                            rb.AddRelativeForce(Vector2.right * tangentialAxis * rb.mass * horizontalAcceleration);
+                    }
                 }
                 else
                 {
-                    rb.velocity = rb.velocity * Mathf.Exp(-Time.deltaTime * 2);
+                    //rb.velocity = Vector3.Normalize(rb.velocity) * (currentTSpeed - Time.deltaTime * deceleration);
+                    rb.velocity = rb.velocity * Mathf.Exp(-Time.deltaTime * deceleration);
                 }
 
-
-                if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W))
+                if (doJump)
                 {
+                    rb.bodyType = RigidbodyType2D.Dynamic;
                     rb.AddRelativeForce(Vector2.up * jumpSpeed * rb.mass, ForceMode2D.Impulse);
+                    doJump = false;
                 }
-                if (Input.GetKeyDown(KeyCode.Q))
+                if (doLeftJump)
                 {
+                    rb.bodyType = RigidbodyType2D.Dynamic;
                     rb.AddRelativeForce((Vector2.left * maxTSpeed + Vector2.up * jumpSpeed) * rb.mass, ForceMode2D.Impulse);
+                    doLeftJump = false;
                 }
-                if (Input.GetKeyDown(KeyCode.E))
+                if (doRightJump)
                 {
+                    rb.bodyType = RigidbodyType2D.Dynamic;
                     rb.AddRelativeForce((Vector2.right * maxTSpeed + Vector2.up * jumpSpeed) * rb.mass, ForceMode2D.Impulse);
+                    doRightJump = false;
                 }
             }
         }
 
         //if (isGrounded)
-            rb.rotation = Mathf.Atan2(rb.position.x, -rb.position.y) * Mathf.Rad2Deg;
+        rb.rotation = Mathf.Atan2(rb.position.x, -rb.position.y) * Mathf.Rad2Deg;
 
         if (!isGrounded && intertiaTrace)
             Instantiate(tracer, rb.position, rb.transform.rotation, background);
     }
+
+    //void OnCollisionEnter2D(Collision2D coll)
+    //{
+    //    Debug.Log(coll.gameObject.name + " " + coll.relativeVelocity + " " + coll.contacts);
+    //}
 
     void OnGUI()
     {

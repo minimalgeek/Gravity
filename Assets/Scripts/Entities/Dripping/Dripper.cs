@@ -16,6 +16,7 @@ public class Dripper : MonoBehaviour
         if (Random.value < rate * Time.deltaTime)
         {
             GameObject newDrop = Instantiate(drop, transform.position, Quaternion.Euler(0, 0, Random.value * 360));
+            newDrop.hideFlags |= HideFlags.HideAndDontSave;
             newDrop.AddComponent<DelayedRemove>().removeDelay = lifeTime;
             Rigidbody2D rb = newDrop.GetComponent<Rigidbody2D>();
             if (rb)
