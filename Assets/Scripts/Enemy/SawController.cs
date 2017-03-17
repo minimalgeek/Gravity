@@ -18,6 +18,7 @@ public class SawController : GLMonoBehaviour {
 		if (other.gameObject == player) {
 			Instantiate(explosionPrefab, player.transform.position, player.transform.rotation);
 			Destroy(player);
+			SceneLoader.Instance.RestartCurrentSceneWithDelayAndShake();
 		}
 	}
 }

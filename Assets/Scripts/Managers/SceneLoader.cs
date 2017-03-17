@@ -13,4 +13,19 @@ public class SceneLoader : Singleton<SceneLoader> {
 	public void RestartCurrentScene() {
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
+
+	public void RestartCurrentSceneWithDelayAndShake() {
+		StartCoroutine(Restart());
+	}
+
+	private IEnumerator Restart() {
+		CameraShake shake = Camera.main.GetComponent<CameraShake>();
+		if (shake) {
+			shake.ShakeCamera(50f, 1f);
+		}
+
+		yield return new WaitForSeconds(2f);
+		RestartCurrentScene();
+	}
+
 }

@@ -15,18 +15,8 @@ public class ObjectiveCollector : Singleton<ObjectiveCollector> {
 		if (GetNextValidOrderValue() == item.orderValue) {
 			collectedItems.Add(item);
 		} else {
-			StartCoroutine(Restart());
+			SceneLoader.Instance.RestartCurrentSceneWithDelayAndShake();
 		}
-	}
-
-	private IEnumerator Restart() {
-		CameraShake shake = Camera.main.GetComponent<CameraShake>();
-		if (shake) {
-			shake.ShakeCamera(50f, 1f);
-		}
-
-		yield return new WaitForSeconds(2f);
-		SceneLoader.Instance.RestartCurrentScene();
 	}
 
 	private int GetNextValidOrderValue() {
