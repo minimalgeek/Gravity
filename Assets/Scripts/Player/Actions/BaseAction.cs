@@ -16,6 +16,11 @@ public class BaseAction : GLMonoBehaviour, IAction
 
 	private bool executionEnabled = false;
 
+	protected void Start() {
+		BoxCollider2D collider = this.GetOrAddComponent<BoxCollider2D>();
+		collider.isTrigger = true;
+	}
+
     void Update()
     {
 		if (!executionEnabled) {
