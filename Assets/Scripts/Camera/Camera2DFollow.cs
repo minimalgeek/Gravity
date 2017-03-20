@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Gamelogic.Extensions;
+using DG.Tweening;
 
 public class Camera2DFollow : GLMonoBehaviour
 {
@@ -9,7 +10,7 @@ public class Camera2DFollow : GLMonoBehaviour
     public float rotationSpeed = 3;
     public float lookAheadValue = 2f;
 
-    private Vector3 currentVelocity;
+    private Vector3 currentVelocity, currentRotationVelocity;
     private float zOffset;
     private float previousHorizontalInput;
 
@@ -59,13 +60,8 @@ public class Camera2DFollow : GLMonoBehaviour
         transform.position = Vector3.SmoothDamp(transform.position, aheadTargetPos, ref currentVelocity, damping);
     }
 
-    private float GetRotationZEuler()
-    {
-        return target.rotation.eulerAngles.z + 180f;
-    }
-
     private void CalculateRotation()
     {
-        transform.rotation = Quaternion.Lerp(transform.rotation, target.rotation, Time.deltaTime * rotationSpeed);
+        transform.DORotate(target.rotation.eulerAngles, damping);
     }
 }
