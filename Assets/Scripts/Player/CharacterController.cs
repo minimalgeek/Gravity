@@ -74,6 +74,7 @@ public class CharacterController : GLMonoBehaviour
             {
                 isClimbing = true;
             }
+            
             if (!isClimbing)
             {
                 SetLocalVelocity(Vector2.zero);
