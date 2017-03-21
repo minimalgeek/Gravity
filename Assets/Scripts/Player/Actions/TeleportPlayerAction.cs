@@ -25,4 +25,8 @@ public class TeleportPlayerAction : BaseAction {
 		player.transform.DOScale(1f, 0.5f);
 	}
 	
+	void OnDrawGizmos()
+	{
+		Gizmos.DrawLine(this.transform.position, destination.transform.position);
+	}
 }

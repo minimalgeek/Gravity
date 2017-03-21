@@ -151,9 +151,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4646673557243540}
   - component: {fileID: 50533940403664034}
-  - component: {fileID: 58682615085030814}
   - component: {fileID: 114688933367318710}
   - component: {fileID: 114662127687111108}
+  - component: {fileID: 70088955003728652}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -250,8 +250,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1847007308799620}
-  m_LocalRotation: {x: 0, y: 0, z: 0.8920985, w: 0.451841}
-  m_LocalPosition: {x: 9.96, y: 7.31, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0.8128698, w: 0.58244544}
+  m_LocalPosition: {x: 11.81, y: 4.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4151198081451576}
@@ -306,20 +306,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
---- !u!58 &58682615085030814
-CircleCollider2D:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1847007308799620}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.45
 --- !u!61 &61049639269785792
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -362,6 +348,20 @@ BoxCollider2D:
   m_Offset: {x: 0.45, y: 0.1}
   serializedVersion: 2
   m_Size: {x: 0.6, y: 0.2}
+--- !u!70 &70088955003728652
+CapsuleCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1847007308799620}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 2}
+  m_Direction: 0
 --- !u!95 &95500391186173464
 Animator:
   serializedVersion: 3
@@ -494,6 +494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac941bd749483144a8e9d81ed8a298e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  facing: 1
 --- !u!114 &114305225024996772
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -574,7 +575,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpSpeed: 10
-  moveSpeed: 4
+  moveSpeed: 10
   slowDownSpeed: 5
   groundDetector: {fileID: 114305225024996772}
   climbUpperDetector: {fileID: 114317520858024274}
