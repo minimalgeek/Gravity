@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using Gamelogic.Extensions;
 
 [ExecuteInEditMode]
-public class UniformRotationField : MonoBehaviour
+public class UniformRotationField : Singleton<UniformRotationField>
 {
     [SerializeField]
     private float angularVelocity = -0.7f;

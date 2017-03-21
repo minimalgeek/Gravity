@@ -40,3 +40,15 @@ MonoBehaviour:
   - displayName: Hint Fountain
     displayIcon: {fileID: 2800000, guid: 0c6dc42f345f15e44860facbd7c1c8b7, type: 3}
     prefab: {fileID: 1898505540097060, guid: 436ba45e0f9ea0944a74cf773a42b2ae, type: 2}
+  - displayName: Laser Gun
+    displayIcon: {fileID: 2800000, guid: fbe3b897ce4b0204bba959377ec2db6c, type: 3}
+    prefab: {fileID: 1921275535967066, guid: 19e4b61650c32c145a1fc52281890fe8, type: 2}
+  - displayName: Checkpoint
+    displayIcon: {fileID: 2800000, guid: 91a187591e2d42b4d8bfe444f82a21f4, type: 3}
+    prefab: {fileID: 1616430375169610, guid: 9c077b7e5af66a0468af510bd9b06fb3, type: 2}
+  - displayName: Double teleport gate
+    displayIcon: {fileID: 2800000, guid: 0c6dc42f345f15e44860facbd7c1c8b7, type: 3}
+    prefab: {fileID: 1272663720942794, guid: c1ee62d49f8430e41bfec6e8758cf562, type: 2}
+  - displayName: Rotation switch
+    displayIcon: {fileID: 2800000, guid: 8e56e49dccc8259439b38cba0ef2117f, type: 3}
+    prefab: {fileID: 1536845410908720, guid: c2c05ed36d613c447827ba8b0ac45ad9, type: 2}

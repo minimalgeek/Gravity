@@ -26,7 +26,7 @@ public class SwitchGravityFieldRotationSpeedAction : BaseAction {
 	new void Start() {
 		base.Start();
 		StateAndAnimation currentState = states[currentIndex];
-		Gravity.Instance.AngularVelocity = currentState.angularVelocity;
+		UniformRotationField.Instance.AngularVelocity = currentState.angularVelocity;
 	}
 
 	public override void Execute() {
@@ -34,7 +34,7 @@ public class SwitchGravityFieldRotationSpeedAction : BaseAction {
 		StateAndAnimation currentState = states[currentIndex];
 
 		animator.Play(currentState.animationClip.name);
-		Gravity.Instance.AngularVelocity = currentState.angularVelocity;
+		UniformRotationField.Instance.AngularVelocity = currentState.angularVelocity;
 	}
 
 }
