@@ -8,8 +8,6 @@ using DG.Tweening;
 public class CharacterController : GLMonoBehaviour
 {
     public float jumpSpeed = 10f;
-    public float moveSpeed = 5f;
-    public float slowDownSpeed = 2f;
     public CollisionDetector groundDetector;
     public CollisionDetector climbUpperDetector;
     public CollisionDetector climbLowerDetector;
@@ -18,8 +16,33 @@ public class CharacterController : GLMonoBehaviour
     private Rigidbody2D rb;
     private CapsuleCollider2D physicsCollider;
     private MirrorToInput facingController;
+    private float actualHorizontalSpeed;
     private bool grounded;
-    private bool upperDetected, lowerDetected, isClimbing; // all climbing related booleans
+    private bool upperDetected, lowerDetected, isHanging; // all climbing related booleans
+
+    public bool IsGrounded
+    {
+        get
+        {
+            return grounded;
+        }
+    }
+
+    public float ActualHorizontalSpeed
+    {
+        set
+        {
+            this.actualHorizontalSpeed = value;
+        }
+    }
+
+    public Rigidbody2D RB
+    {
+        get
+        {
+            return rb;
+        }
+    }
 
     void Awake()
     {
@@ -36,7 +59,7 @@ public class CharacterController : GLMonoBehaviour
 
     void Start()
     {
-        groundDetector.TriggerStay += (() => grounded = true);
+        groundDetector.TriggerStay += (() => { grounded = true; SetLocalXVelocityToZero(); });
         groundDetector.TriggerLeave += (() => grounded = false);
 
         climbUpperDetector.TriggerStay += (() => upperDetected = true);
@@ -44,50 +67,51 @@ public class CharacterController : GLMonoBehaviour
 
         climbLowerDetector.TriggerStay += (() => lowerDetected = true);
         climbLowerDetector.TriggerLeave += (() => lowerDetected = false);
-
     }
+
+    void Update()
+    {
+        if (!upperDetected && lowerDetected)
+        {
+            isHanging = true;
+        }
+        else
+        {
+            isHanging = false;
+        }
+    }
+
 
     void FixedUpdate()
     {
+        Debug.Log("FixedUpdtae");
+
         if (grounded)
         {
-            // moving
-            if (Input.GetAxisRaw("Horizontal") == 0)
-            {
-                Decelerate();
-            }
-            else
-            {
-                Accelerate();
-            }
-
             // jumping
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 rb.AddForce(this.transform.up * jumpSpeed * rb.mass, ForceMode2D.Impulse);
+                Vector2 locVel = GetLocalVelocity();
+                locVel.x = actualHorizontalSpeed;
+                SetLocalVelocity(locVel);
             }
         }
-        else if (!upperDetected && lowerDetected)
+        else if (isHanging)
         {
+            rb.simulated = false;
+            SetLocalVelocity(Vector2.zero);
+
             // climbing
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                isClimbing = true;
-            }
-            
-            if (!isClimbing)
-            {
-                SetLocalVelocity(Vector2.zero);
-            }
-            else
-            {
                 physicsCollider.enabled = false;
-                rb.DOMove(toClimbRelativePos.position, 1f, false).OnComplete(() => physicsCollider.enabled = true);
+                transform.DOLocalMove(toClimbRelativePos.position, 1f, false).OnComplete(() =>
+                {
+                    physicsCollider.enabled = true;
+                    rb.simulated = true;
+                });
             }
-        }
-        else
-        {
-            isClimbing = false;
         }
     }
 
@@ -96,7 +120,7 @@ public class CharacterController : GLMonoBehaviour
         return facingController.facing;
     }
 
-    private Vector2 GetLocalVelocity()
+    public Vector2 GetLocalVelocity()
     {
         return transform.InverseTransformDirection(rb.velocity);
     }
@@ -106,17 +130,10 @@ public class CharacterController : GLMonoBehaviour
         rb.velocity = transform.TransformDirection(newVelocity);
     }
 
-    private void Accelerate()
+    public void SetLocalXVelocityToZero()
     {
         Vector2 localVelocity = GetLocalVelocity();
-        localVelocity.x = Input.GetAxis("Horizontal") * moveSpeed;
-        SetLocalVelocity(localVelocity);
-    }
-
-    private void Decelerate()
-    {
-        Vector2 localVelocity = GetLocalVelocity();
-        localVelocity = Vector2.Lerp(localVelocity, Vector2.zero, Time.deltaTime * slowDownSpeed);
+        localVelocity.x = 0;
         SetLocalVelocity(localVelocity);
     }
 }

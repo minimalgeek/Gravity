@@ -9,16 +9,20 @@ public enum Facing {
 
 public class MirrorToInput : GLMonoBehaviour {
 
+	private Facing previousFacing = Facing.RIGHT;
 	public Facing facing = Facing.RIGHT;
 
 	void Update () {
 		float horizontal = Input.GetAxisRaw("Horizontal");
 		if (horizontal < 0) {
 			facing = Facing.LEFT;
-			transform.SetScaleX(-1);
 		} else if (horizontal > 0) {
 			facing = Facing.RIGHT;
-			transform.SetScaleX(1);
+		}
+
+		if (previousFacing != facing) {
+			previousFacing = facing;
+			this.transform.FlipX();
 		}
 	}
 }

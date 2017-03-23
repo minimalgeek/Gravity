@@ -10,12 +10,13 @@ public class CollisionDetector : GLMonoBehaviour
     public event TriggerAction TriggerStay;
     public event TriggerAction TriggerLeave;
 
-    public LayerMask groundLayer;
+    public LayerMask triggeringLayer;
 
     void OnTriggerStay2D(Collider2D other)
     {
-        if ((1 << other.gameObject.layer) == groundLayer)
+        if ((1 << other.gameObject.layer) == triggeringLayer)
         {
+            Debug.Log("yoyo");
             if (TriggerStay != null)
                 TriggerStay();
         }
@@ -23,7 +24,7 @@ public class CollisionDetector : GLMonoBehaviour
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if ((1 << other.gameObject.layer) == groundLayer)
+        if ((1 << other.gameObject.layer) == triggeringLayer)
         {
             if (TriggerLeave != null)
                 TriggerLeave();
