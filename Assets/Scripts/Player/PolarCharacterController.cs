@@ -27,7 +27,6 @@ public class PolarCharacterController : GLMonoBehaviour
 
     public bool IsGrounded { get { return grounded; } }
     public float ActualHorizontalSpeed { set { actualHorizontalSpeed = value; } }
-    public Rigidbody2D RB { get { return rb; } }
 
     void Awake()
     {
@@ -60,8 +59,9 @@ public class PolarCharacterController : GLMonoBehaviour
     {
         if (!upperDetected && lowerDetected)
         {
-            Debug.Log("\thanging");
+            //Debug.Log("\thanging");
             isHanging = true;
+            canJump = true;
         }
         else
         {

@@ -16,7 +16,6 @@ public class CollisionDetector : GLMonoBehaviour
     {
         if ((1 << other.gameObject.layer) == triggeringLayer)
         {
-            //Debug.Log("colled");
             if (TriggerStay != null)
                 TriggerStay();
         }
