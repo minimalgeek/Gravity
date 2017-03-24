@@ -199,7 +199,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4073686184661330
 Transform:
   m_ObjectHideFlags: 1
@@ -725,7 +725,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b88e4b25825cc434fb3deea8dbad741d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpSpeed: 10
+  jumpSpeed: 20
   groundDetector: {fileID: 114291961652741586}
   climbUpperDetector: {fileID: 114382217731434902}
   climbLowerDetector: {fileID: 114496497778087196}

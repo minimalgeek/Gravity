@@ -37,7 +37,7 @@ public class ItemPickupAction : BaseAction {
 		pickupCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == true);
 		if (!pickupCollider) {
 			pickupCollider = this.gameObject.AddComponent<BoxCollider2D>();
-			pickupCollider.size = new Vector2(physicsCollider.size.x + 0.1f, physicsCollider.size.y);
+			pickupCollider.size = new Vector2(physicsCollider.size.x + triggerBoxIncrement, physicsCollider.size.y);
 			pickupCollider.offset = physicsCollider.offset;
 			pickupCollider.isTrigger = true;
 		}

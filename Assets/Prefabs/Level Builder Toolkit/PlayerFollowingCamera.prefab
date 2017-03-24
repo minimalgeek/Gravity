@@ -123,7 +123,8 @@ MonoBehaviour:
   target: {fileID: 0}
   damping: 0.4
   rotationSpeed: 5
-  lookAheadValue: 3
+  lookAheadValue: 0
+  lookAboveValue: 2
 --- !u!124 &124554150507205244
 Behaviour:
   m_ObjectHideFlags: 1

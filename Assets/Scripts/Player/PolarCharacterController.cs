@@ -84,6 +84,8 @@ public class PolarCharacterController : GLMonoBehaviour
     {
         if (grounded)
         {
+            if (!jumpFlag)
+                mover.ApplyMotion();
             //Debug.Log(Time.frameCount + " G");
             // jumping
             if (jumpFlag)
@@ -95,7 +97,6 @@ public class PolarCharacterController : GLMonoBehaviour
                 locVel.x = actualHorizontalSpeed;
                 SetLocalVelocity(locVel);
             }
-            mover.ApplyMotion();
         }
         else if (isHanging)
         {
@@ -127,6 +128,10 @@ public class PolarCharacterController : GLMonoBehaviour
     public Facing GetFacingDirection()
     {
         return facingController.facing;
+    }
+
+    public Vector3 GetFacingVector() {
+        return GetFacingDirection() == Facing.LEFT ? transform.right * -1 : transform.right;
     }
 
     public Vector2 GetLocalVelocity()
