@@ -10,11 +10,13 @@ public class CollisionDetector : GLMonoBehaviour
     public event TriggerAction TriggerStay;
     public event TriggerAction TriggerLeave;
 
-    public LayerMask triggeringLayer;
+    [TooltipAttribute("Layers to trigger on")]
+    public List<LayerMask> triggeringLayers = new List<LayerMask>();
 
     void OnTriggerStay2D(Collider2D other)
     {
-        if ((1 << other.gameObject.layer) == triggeringLayer)
+
+        if (IsTriggered(other))
         {
             if (TriggerStay != null)
                 TriggerStay();
@@ -23,10 +25,15 @@ public class CollisionDetector : GLMonoBehaviour
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if ((1 << other.gameObject.layer) == triggeringLayer)
+        if (IsTriggered(other))
         {
             if (TriggerLeave != null)
                 TriggerLeave();
         }
+    }
+
+    private bool IsTriggered(Collider2D other) {
+        LayerMask otherLayer = (1 << other.gameObject.layer);
+        return triggeringLayers.Contains(otherLayer);
     }
 }

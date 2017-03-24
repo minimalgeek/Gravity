@@ -20,11 +20,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4936213164225546}
   - component: {fileID: 212293336411890970}
-  - component: {fileID: 114404225352178128}
   - component: {fileID: 114544037885490252}
   - component: {fileID: 61673163100896138}
   - component: {fileID: 50432242731670512}
-  m_Layer: 0
+  - component: {fileID: 114039587756264884}
+  m_Layer: 10
   m_Name: LaserGun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37,8 +37,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1921275535967066}
-  m_LocalRotation: {x: 0, y: 0, z: -0.76260114, w: -0.646869}
-  m_LocalPosition: {x: 12.52, y: 2.07, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0.70029986, w: 0.7138488}
+  m_LocalPosition: {x: -68.96729, y: -1.3216691, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -78,7 +78,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
---- !u!114 &114404225352178128
+--- !u!114 &114039587756264884
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -86,9 +86,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1921275535967066}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 445480490c1473b41a3cebd13890f2b8, type: 3}
+  m_Script: {fileID: 11500000, guid: c478dd44c7aa05b49b307c46c1d2d297, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoRotate: 1
 --- !u!114 &114544037885490252
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -101,7 +102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyDirectionToTrigger: 1
-  throwSpeed: 5
+  throwSpeed: 15
 --- !u!212 &212293336411890970
 SpriteRenderer:
   m_ObjectHideFlags: 1

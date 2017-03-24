@@ -347,7 +347,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1351305321092624}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0.65, z: 0}
+  m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4250414507424346}
@@ -683,9 +683,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef158bad5fd413c43b01736aaa2886fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggeringLayer:
-    serializedVersion: 2
+  triggeringLayers:
+  - serializedVersion: 2
     m_Bits: 256
+  - serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &114357217908401784
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -709,8 +711,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef158bad5fd413c43b01736aaa2886fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggeringLayer:
-    serializedVersion: 2
+  triggeringLayers:
+  - serializedVersion: 2
     m_Bits: 256
 --- !u!114 &114400874093266116
 MonoBehaviour:
@@ -741,8 +743,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef158bad5fd413c43b01736aaa2886fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggeringLayer:
-    serializedVersion: 2
+  triggeringLayers:
+  - serializedVersion: 2
     m_Bits: 256
 --- !u!114 &114616438575916012
 MonoBehaviour:

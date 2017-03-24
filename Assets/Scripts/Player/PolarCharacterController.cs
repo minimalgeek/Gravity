@@ -80,7 +80,7 @@ public class PolarCharacterController : GLMonoBehaviour
     {
         if (grounded)
         {
-            Debug.Log(Time.frameCount + " G");
+            //Debug.Log(Time.frameCount + " G");
             // jumping
             if (jumpFlag)
             {
@@ -95,7 +95,7 @@ public class PolarCharacterController : GLMonoBehaviour
         }
         else if (isHanging)
         {
-            Debug.Log(Time.frameCount + " H");
+            //Debug.Log(Time.frameCount + " H");
             rb.simulated = false;
             SetLocalVelocity(Vector2.zero);
 
@@ -115,7 +115,7 @@ public class PolarCharacterController : GLMonoBehaviour
         }
         else
         {
-            Debug.Log(Time.frameCount + " A");
+            //Debug.Log(Time.frameCount + " A");
             if (jumpFlag && Time.time - jumpPressTime > jumpTimeout) jumpFlag = false;
         }
     }

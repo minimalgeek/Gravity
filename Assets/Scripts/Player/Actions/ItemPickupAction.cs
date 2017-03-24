@@ -48,7 +48,7 @@ public class ItemPickupAction : BaseAction {
 			transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
 		} else {
 			SetPickedUp(false);
-			float yForce = characterController.GetFacingDirection() == Facing.RIGHT ? throwSpeed : -throwSpeed;
+			float yForce = characterController.GetFacingDirection() == Facing.RIGHT ? -throwSpeed : throwSpeed;
 			rb.AddForce(Vector3.zero.WithY(yForce), ForceMode2D.Impulse);
 			this.transform.SetParent(null);
 		}
