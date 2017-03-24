@@ -7,6 +7,7 @@ public class CollisionDetector : GLMonoBehaviour
 {
 
     public delegate void TriggerAction();
+    public event TriggerAction TriggerEnter;
     public event TriggerAction TriggerStay;
     public event TriggerAction TriggerLeave;
 
@@ -29,6 +30,15 @@ public class CollisionDetector : GLMonoBehaviour
         {
             if (TriggerLeave != null)
                 TriggerLeave();
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (IsTriggered(other))
+        {
+            if (TriggerEnter != null)
+                TriggerEnter();
         }
     }
 

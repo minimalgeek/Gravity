@@ -361,7 +361,7 @@ Camera:
   m_GameObject: {fileID: 1967981369745686}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.2784314, g: 0.2784314, b: 0.2784314, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -670,7 +670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fce847c8d76e374c9f846cfdca972a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 12
+  moveSpeed: 10
   characterController: {fileID: 0}
 --- !u!114 &114291961652741586
 MonoBehaviour:
@@ -725,8 +725,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b88e4b25825cc434fb3deea8dbad741d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpSpeed: 12
-  jumpTimeout: 0.1
+  jumpSpeed: 10
   groundDetector: {fileID: 114291961652741586}
   climbUpperDetector: {fileID: 114382217731434902}
   climbLowerDetector: {fileID: 114496497778087196}

@@ -10,6 +10,10 @@ public class ItemPickupAction : BaseAction {
 
 	public float throwSpeed = 5f;
 
+	[Tooltip("If the GameObject doesn't have a triggering collider" +
+	"(but has one for the physics collision), it generates one, " + 
+	"with this horizontal increment")]
+	public float triggerBoxIncrement = 0.5f;
 	private bool pickedUpByPlayer;
 	private Transform holdingPoint;
 
@@ -33,7 +37,7 @@ public class ItemPickupAction : BaseAction {
 		pickupCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == true);
 		if (!pickupCollider) {
 			pickupCollider = this.gameObject.AddComponent<BoxCollider2D>();
-			pickupCollider.size = physicsCollider.size*2;
+			pickupCollider.size = new Vector2(physicsCollider.size.x + 0.1f, physicsCollider.size.y);
 			pickupCollider.offset = physicsCollider.offset;
 			pickupCollider.isTrigger = true;
 		}

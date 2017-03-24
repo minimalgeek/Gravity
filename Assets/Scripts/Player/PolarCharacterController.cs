@@ -8,7 +8,6 @@ using DG.Tweening;
 public class PolarCharacterController : GLMonoBehaviour
 {
     public float jumpSpeed = 12f;
-    public float jumpTimeout = 0.1f;
     public CollisionDetector groundDetector;
     public CollisionDetector climbUpperDetector;
     public CollisionDetector climbLowerDetector;
@@ -45,7 +44,14 @@ public class PolarCharacterController : GLMonoBehaviour
 
     void Start()
     {
-        groundDetector.TriggerStay += (() => { grounded = true; canJump = true; SetLocalXVelocityToZero(); Debug.Log("Touchdown!"); });
+        //groundDetector.TriggerEnter += (() => SetLocalXVelocityToZero());
+        groundDetector.TriggerStay += (() =>
+        {
+            grounded = true;
+            canJump = true;
+            SetLocalXVelocityToZero();
+            Debug.Log("Touchdown!");
+        });
         groundDetector.TriggerLeave += (() => grounded = false);
 
         climbUpperDetector.TriggerStay += (() => upperDetected = true);
@@ -67,11 +73,9 @@ public class PolarCharacterController : GLMonoBehaviour
         {
             isHanging = false;
         }
-        if (Input.GetAxis("Jump") > 0 && canJump)
+        if (Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             jumpFlag = true;
-            jumpPressTime = Time.time;
-            Debug.LogWarning("JUMP!!");
         }
     }
 
@@ -115,8 +119,8 @@ public class PolarCharacterController : GLMonoBehaviour
         }
         else
         {
-            //Debug.Log(Time.frameCount + " A");
-            if (jumpFlag && Time.time - jumpPressTime > jumpTimeout) jumpFlag = false;
+            jumpFlag = false;
+            rb.simulated = true; // let him fall, if he was hanging before
         }
     }
 
