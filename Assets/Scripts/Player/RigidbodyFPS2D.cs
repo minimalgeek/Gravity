@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Assertions;
+using DG.Tweening;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CapsuleCollider2D))]
@@ -15,11 +17,11 @@ public class RigidbodyFPS2D : MonoBehaviour
     private Rigidbody2D rb;
     private CollisionSinkingDetector sinkingDetector;
     private bool sinkingSuspended = true;
+    private Vector2 groundNormal;
 
     // Inputs Cache
     private bool jumpFlag = false;
-    private int jumpFlagCountdown = 0;
-    private int jumpFlagTimer = 10;
+    private float jumpPressTime;
     private bool isJumping = false;
 
     #endregion
@@ -39,6 +41,7 @@ public class RigidbodyFPS2D : MonoBehaviour
     private float inAirControl = 0.0f;
     //public float jumpHeight = 2.0f;
     public float jumpSpeed = 10f;
+    public float jumpTimeout = 0.1f;
 
     // Can Flags
     public bool canRunSidestep = true;
@@ -55,9 +58,12 @@ public class RigidbodyFPS2D : MonoBehaviour
     void Awake()
     {
         capsule = GetComponent<CapsuleCollider2D>();
+        Assert.IsNotNull(capsule);
         rb = GetComponent<Rigidbody2D>();
+        Assert.IsNotNull(rb);
         rb.freezeRotation = true;
         sinkingDetector = GetComponentInChildren<CollisionSinkingDetector>();
+        Assert.IsNotNull(sinkingDetector);
         sinkingDetector.TriggerStay += OnSinkingStay;
         //sinkingDetector.TriggerLeave += OnSinkingLeave;
         //rb.useGravity = true;
@@ -66,10 +72,10 @@ public class RigidbodyFPS2D : MonoBehaviour
     /// <summary>
     /// Use this for initialization
     /// </summary>
-    //void Start()
-    //{
-
-    //}
+    void Start()
+    {
+        sinkingDetector.TriggerStay += OnSinkingStay;
+    }
 
     /// <summary>
     /// Update is called once per frame
@@ -77,15 +83,10 @@ public class RigidbodyFPS2D : MonoBehaviour
     void Update()
     {
         // Cache the input
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetAxis("Jump") > 0 && canJump)
         {
-            jumpFlagCountdown = jumpFlagTimer;
             jumpFlag = true;
-        }
-        if (jumpFlag)
-        {
-            jumpFlagCountdown--;
-            if (jumpFlagCountdown == 0) jumpFlag = false;
+            jumpPressTime = Time.time;
         }
     }
 
@@ -113,7 +114,7 @@ public class RigidbodyFPS2D : MonoBehaviour
                 sinkingDetector.ColliderEnabled = false;
                 isJumping = true;
             }
-            
+
 
             // By setting the grounded to false in every FixedUpdate we avoid
             // checking if the character is not grounded on OnCollisionExit()
@@ -122,6 +123,7 @@ public class RigidbodyFPS2D : MonoBehaviour
         // In mid-air
         else
         {
+            if (jumpFlag && Time.time - jumpPressTime > jumpTimeout) jumpFlag = false;
             isJumping = false;
 
             // Uses the input vector to affect the mid air direction
@@ -161,7 +163,7 @@ public class RigidbodyFPS2D : MonoBehaviour
         TrackGrounded(col);
     }
 
-    #endregion
+    #endregion Unity event functions
 
     #region Methods
 
@@ -170,6 +172,8 @@ public class RigidbodyFPS2D : MonoBehaviour
     {
         // Calculate how fast we should be moving
         var relativeVelocity = (Vector2)transform.TransformDirection(inputVector);
+        //Vector2 relativeVelocity = new Vector2(groundNormal.y, -groundNormal.x) * inputVector.x + groundNormal * inputVector.y;
+
         //if (inputVector.y > 0)
         //{
         //    relativeVelocity.y *= (canRun && Input.GetKey(KeyCode.LeftShift)/*GetButton("Sprint")*/) ? runSpeed : walkSpeed;
@@ -181,6 +185,10 @@ public class RigidbodyFPS2D : MonoBehaviour
         //relativeVelocity.x *= (canRunSidestep && Input.GetKey(KeyCode.LeftShift)/*GetButton("Sprint")*/) ? runSidestepSpeed : sidestepSpeed;
         relativeVelocity *= walkSpeed;// (canRun && Input.GetKey(KeyCode.LeftShift)) ? runSpeed : walkSpeed;
 
+
+        //Vector3 initialStep = transform.right * inputVector.x * walkSpeed;
+        //Vector2 relativeVelocity = Vector3.Normalize(transform.position + initialStep) * transform.position.magnitude - transform.position + transform.up * inputVector.y * walkSpeed;
+
         // Calcualte the delta velocity
         var currRelativeVelocity = rb.velocity - groundVelocity;
         var velocityChange = relativeVelocity - currRelativeVelocity;
@@ -189,6 +197,25 @@ public class RigidbodyFPS2D : MonoBehaviour
         //velocityChange.y = 0;
 
         return velocityChange;
+    }
+
+    // From the user input calculate using the set up speeds the velocity change
+    private Vector2 CalculateVelocityChange2(Vector2 inputVector)
+    {
+        // Olvashatóan:
+        //Vector3 currentVelocity = rb.velocity;
+        //Vector3 currentStep = currentVelocity * Time.fixedDeltaTime;
+        //Vector3 expectedTangential = transform.right * inputVector.x * walkSpeed;
+        //Vector3 expectedTangentialCorrectedStep = Vector3.Normalize(transform.position + expectedTangential * Time.fixedDeltaTime) * transform.position.magnitude - transform.position;
+        //Vector3 expectedCorrectedStep = expectedTangentialCorrectedStep + transform.up * inputVector.y * walkSpeed;
+        //Vector3 velocityChange = (expectedCorrectedStep - currentStep) / Time.fixedDeltaTime;
+        //return velocityChange;
+
+        // Ugyanez olvashatatlanul:
+        return (Vector3.Normalize(transform.position + transform.right * inputVector.x * walkSpeed * Time.fixedDeltaTime) * transform.position.magnitude
+            - transform.position + transform.up * inputVector.y * walkSpeed)
+            / Time.fixedDeltaTime
+            - (Vector3)rb.velocity;
     }
 
     // From the jump height and gravity we deduce the upwards speed for the character to reach at the apex.
@@ -203,6 +230,7 @@ public class RigidbodyFPS2D : MonoBehaviour
         if (!isJumping)
         {
             var minRadius = capsule.transform.position.magnitude + capsule.size.y * 0.5f - capsule.size.x * 0.45f;// capsule.bounds. + capsule.size.x * .9f;
+            groundNormal = Vector2.zero;
             foreach (var contact in collision.contacts)
             {
                 if (contact.point.magnitude > minRadius)
@@ -229,9 +257,12 @@ public class RigidbodyFPS2D : MonoBehaviour
                     grounded = true;
                     sinkingSuspended = false;
                     sinkingDetector.ColliderEnabled = true;
-                }
 
-                break;
+                    groundNormal = contact.normal;
+                    Debug.Log(groundNormal);
+
+                    break;
+                }
             }
         }
     }
@@ -257,5 +288,5 @@ public class RigidbodyFPS2D : MonoBehaviour
         return transform.gameObject.isStatic;
     }
 
-    #endregion
+    #endregion Methods
 }
