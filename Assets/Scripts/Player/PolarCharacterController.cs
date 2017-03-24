@@ -111,7 +111,7 @@ public class PolarCharacterController : GLMonoBehaviour
                 canJump = false;
                 Debug.LogWarning(Time.frameCount + "    J");
                 physicsCollider.enabled = false; // Hm.
-                transform.DOLocalMove(toClimbRelativePos.position, 1f, false).OnComplete(() =>
+                transform.DOMove(toClimbRelativePos.position, 1f, false).OnComplete(() =>
                 {
                     physicsCollider.enabled = true;
                     rb.simulated = true;

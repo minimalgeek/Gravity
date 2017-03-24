@@ -7,7 +7,7 @@ using Gamelogic.Extensions;
 public class ToCenterRotator : GLMonoBehaviour
 {
 
-    void FixedUpdate()
+    void Update()
     {
         Vector3 vectorToTarget = -transform.position;
         float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
