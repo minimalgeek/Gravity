@@ -6,29 +6,31 @@ using DG.Tweening;
 public class Camera2DFollow : GLMonoBehaviour
 {
     public Transform target;
+    private PolarCharacterController characterController;
     public float damping = 1;
     public float rotationSpeed = 3;
     public float lookAheadValue = 2f;
+    public float lookAboveValue = 2f;
 
     private Vector3 currentVelocity, currentRotationVelocity;
     private float zOffset;
-    private float previousHorizontalInput;
 
     // Use this for initialization
     private void Start()
     {
         if (target == null)
         {
-            target = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER).transform;
+            GameObject player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
+            target = player.transform;
+            characterController = player.GetComponent<PolarCharacterController>();
         }
         zOffset = (transform.position - target.position).z;
-        previousHorizontalInput = 0f;
         transform.parent = null;
     }
 
 
     // Update is called once per frame
-    private void Update()
+    private void LateUpdate()
     {
         if (!target)
         {
@@ -37,31 +39,30 @@ public class Camera2DFollow : GLMonoBehaviour
 
         CalculatePosition();
         CalculateRotation();
-        if (Input.GetAxisRaw("Horizontal") != 0)
-        {
-            previousHorizontalInput = Input.GetAxisRaw("Horizontal");
-        }
     }
 
     private void CalculatePosition()
     {
-        Vector3 facingDir;
+        Vector3 facingDir = Vector3.zero;
 
-        if (previousHorizontalInput > 0)
+        if (characterController)
         {
-            facingDir = target.right;
-        }
-        else
-        {
-            facingDir = target.right * -1;
+            facingDir = characterController.GetFacingVector();
         }
 
-        Vector3 aheadTargetPos = target.position + Vector3.forward * zOffset + lookAheadValue * facingDir;
-        transform.position = Vector3.SmoothDamp(transform.position, aheadTargetPos, ref currentVelocity, damping);
+        Vector3 aheadTargetPos = target.position + Vector3.forward * zOffset +  facingDir * lookAheadValue + target.up * lookAboveValue;
+        transform.position = aheadTargetPos;
+
+        // TODO: rewrite this stuff from scratch
+
+        //transform.DOMove(aheadTargetPos, damping);
+        //transform.position = Vector3.SmoothDamp(transform.position, aheadTargetPos, ref currentVelocity, damping);
     }
 
     private void CalculateRotation()
     {
-        transform.DORotate(target.rotation.eulerAngles, damping);
+        //Quaternion newRotation = Quaternion.Slerp(transform.rotation, target.rotation, damping);
+        transform.rotation = target.rotation;
+        //transform.DORotate(target.rotation.eulerAngles, damping);
     }
 }

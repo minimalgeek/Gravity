@@ -8,17 +8,27 @@ using System;
 public class CheckpointAction : ReachAction
 {
 
+    private static CheckpointAction lastCheckpoint;
     private const string LAST_CHECKPOINT = "LastCheckPoint";
     private bool isChecked;
     private string scope;
-    public string uniqueID = null;
+    private SpriteRenderer spriteRenderer;
 
     new void Start()
     {
         base.Start();
         scope = SceneManager.GetActiveScene().name;
-
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         RespawnPlayerHere();
+    }
+
+    void Update()
+    {
+        if (lastCheckpoint == this) {
+            VisualFeedbackForLatestCheckpoint();
+        } else {
+            ResetVisualFeedback();
+        }
     }
 
     public override void Execute()
@@ -34,13 +44,14 @@ public class CheckpointAction : ReachAction
                 checkPoints[checkPoints.Length - 1] = GetCode();
                 GLPlayerPrefs.SetStringArray(scope, LAST_CHECKPOINT, checkPoints);
                 Debug.Log("Checkpoint saved: " + GetCode());
+                lastCheckpoint = this;
             }
         }
     }
 
     private string GetCode()
     {
-        return uniqueID;
+        return GetInstanceID().ToString();
     }
 
     public void RespawnPlayerHere()
@@ -55,6 +66,15 @@ public class CheckpointAction : ReachAction
         {
             Debug.Log("Respawn player at: " + GetCode());
             player.transform.position = this.transform.position + player.transform.up * 0.5f;
+            lastCheckpoint = this;
         }
+    }
+
+    private void VisualFeedbackForLatestCheckpoint() {
+        spriteRenderer.color = Color.red;
+    }
+
+    private void ResetVisualFeedback() {
+        spriteRenderer.color = Color.white;
     }
 }

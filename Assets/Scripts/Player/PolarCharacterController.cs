@@ -8,7 +8,7 @@ using DG.Tweening;
 public class PolarCharacterController : GLMonoBehaviour
 {
     public float jumpSpeed = 12f;
-    public float jumpTimeout = 0.1f;
+    public float climbingTime = 1f;
     public CollisionDetector groundDetector;
     public CollisionDetector climbUpperDetector;
     public CollisionDetector climbLowerDetector;
@@ -21,11 +21,7 @@ public class PolarCharacterController : GLMonoBehaviour
     private CharacterMover mover;
     private bool grounded;
     private bool upperDetected, lowerDetected, isHanging; // all climbing related booleans
-    private bool canJump;
     private bool jumpFlag;
-    private float jumpPressTime;
-
-    public bool IsGrounded { get { return grounded; } }
     public float ActualHorizontalSpeed { set { actualHorizontalSpeed = value; } }
 
     void Awake()
@@ -43,10 +39,25 @@ public class PolarCharacterController : GLMonoBehaviour
         Assert.IsNotNull(mover);
     }
 
+    /* it's needed, because there are so much change on groundDetector stay and leave, 
+       it triggers the local velocity setters too often */
+    private IEnumerator ApplyHorizontalSpeedALittleLater() {
+        yield return new WaitForSeconds(0.005f);
+        SetLocalXVelocityToActualHorizontalSpeed();
+    }
     void Start()
     {
-        groundDetector.TriggerStay += (() => { grounded = true; canJump = true; SetLocalXVelocityToZero(); Debug.Log("Touchdown!"); });
-        groundDetector.TriggerLeave += (() => grounded = false);
+        groundDetector.TriggerStay += (() =>
+        {
+            grounded = true;
+            StopAllCoroutines();
+            SetLocalXVelocityToZero();
+        });
+        groundDetector.TriggerLeave += (() => {
+            grounded = false;
+            StartCoroutine(ApplyHorizontalSpeedALittleLater());
+            //SetLocalXVelocityToActualHorizontalSpeed();
+        });
 
         climbUpperDetector.TriggerStay += (() => upperDetected = true);
         climbUpperDetector.TriggerLeave += (() => upperDetected = false);
@@ -57,41 +68,26 @@ public class PolarCharacterController : GLMonoBehaviour
 
     void Update()
     {
-        if (!upperDetected && lowerDetected)
-        {
-            //Debug.Log("\thanging");
-            isHanging = true;
-            canJump = true;
-        }
-        else
-        {
-            isHanging = false;
-        }
-        if (Input.GetAxis("Jump") > 0 && canJump)
+        isHanging = !upperDetected && lowerDetected;
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             jumpFlag = true;
-            jumpPressTime = Time.time;
-            Debug.LogWarning("JUMP!!");
         }
     }
 
-
+    
     void FixedUpdate()
     {
         if (grounded)
         {
-            //Debug.Log(Time.frameCount + " G");
-            // jumping
             if (jumpFlag)
             {
                 jumpFlag = false;
-                Debug.LogWarning(Time.frameCount + "    J");
+                SetLocalXVelocityToActualHorizontalSpeed();
                 rb.AddForce(transform.up * jumpSpeed * rb.mass, ForceMode2D.Impulse);
-                Vector2 locVel = GetLocalVelocity();
-                locVel.x = actualHorizontalSpeed;
-                SetLocalVelocity(locVel);
+            } else {
+                mover.ApplyMotion();
             }
-            mover.ApplyMotion();
         }
         else if (isHanging)
         {
@@ -103,10 +99,9 @@ public class PolarCharacterController : GLMonoBehaviour
             if (jumpFlag)
             {
                 jumpFlag = false;
-                canJump = false;
                 Debug.LogWarning(Time.frameCount + "    J");
                 physicsCollider.enabled = false; // Hm.
-                transform.DOLocalMove(toClimbRelativePos.position, 1f, false).OnComplete(() =>
+                transform.DOMove(toClimbRelativePos.position, climbingTime, false).OnComplete(() =>
                 {
                     physicsCollider.enabled = true;
                     rb.simulated = true;
@@ -115,14 +110,19 @@ public class PolarCharacterController : GLMonoBehaviour
         }
         else
         {
-            //Debug.Log(Time.frameCount + " A");
-            if (jumpFlag && Time.time - jumpPressTime > jumpTimeout) jumpFlag = false;
+            jumpFlag = false;
+            rb.simulated = true; // let him fall, if he was hanging before
         }
     }
 
     public Facing GetFacingDirection()
     {
         return facingController.facing;
+    }
+
+    public Vector3 GetFacingVector()
+    {
+        return GetFacingDirection() == Facing.LEFT ? transform.right * -1 : transform.right;
     }
 
     public Vector2 GetLocalVelocity()
@@ -140,5 +140,12 @@ public class PolarCharacterController : GLMonoBehaviour
         Vector2 localVelocity = GetLocalVelocity();
         localVelocity.x = 0;
         SetLocalVelocity(localVelocity);
+    }
+
+    private void SetLocalXVelocityToActualHorizontalSpeed()
+    {
+        Vector2 locVel = GetLocalVelocity();
+        locVel.x = actualHorizontalSpeed;
+        SetLocalVelocity(locVel);
     }
 }

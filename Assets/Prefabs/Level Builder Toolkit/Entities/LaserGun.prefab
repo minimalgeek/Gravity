@@ -103,6 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyDirectionToTrigger: 1
   throwSpeed: 15
+  triggerBoxIncrement: 0.2
 --- !u!212 &212293336411890970
 SpriteRenderer:
   m_ObjectHideFlags: 1
