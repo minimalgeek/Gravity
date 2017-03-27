@@ -132,6 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pickUpTime: 0.2
+  color: {r: 1, g: 0.84705883, b: 0, a: 1}
 --- !u!212 &212096711124761230
 SpriteRenderer:
   m_ObjectHideFlags: 1

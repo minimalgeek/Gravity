@@ -8,6 +8,16 @@ public class LevelEditorGUI : EditorWindow
 {
     #region Fields
 
+    //float radiusTest = 1f;
+    Quaternion rotatorDiscCurrentRotation = Quaternion.identity;
+    Quaternion rotatorDiscPreviousRotation = Quaternion.identity;
+    //Vector3 doPositionTest = new Vector2(3, 3);
+    //Vector3 freeMoveTest = new Vector2(3, -3);
+    //Vector3 positionTest = new Vector2(-3, -3);
+
+
+
+
     // The Level Root object, into which all other objects are placed
     GameObject root;
     Transform rootTransform;
@@ -61,7 +71,7 @@ public class LevelEditorGUI : EditorWindow
     {
         Off, Single, Arc, Wall, Ring
     }
-    string[] placingModes = { "Off (0)", "Single (1)", "Arc (2)", "Wall (3)", "Ring (4)" };
+    string[] placingModes = { "Off", "Single", "Arc", "Wall", "Ring" };
     int placingMode = 0;
     private PlacingModes PlacingMode
     {
@@ -113,6 +123,8 @@ public class LevelEditorGUI : EditorWindow
     Vector3 wallFirstPosition;
     float wallFirstRadius;
     LineRenderer wallRay;
+    float wallInnerRadius;
+    float wallOuterRadius;
 
     bool arcPlacingStarted = false;
     Vector3 arcFirstPosition;
@@ -191,6 +203,7 @@ public class LevelEditorGUI : EditorWindow
                 {
                     PlacingMode = PlacingModes.Off;
                     wallPlacingStarted = false;
+                    RemoveGhosts();
                 }
                 if (GUILayout.Toggle(PlacingMode == PlacingModes.Single, placingModes[1], "button", GUILayout.Width(buttonWidth)))
                 {
@@ -474,8 +487,11 @@ public class LevelEditorGUI : EditorWindow
                     if (arcPlacingStarted)
                         if (ghost == null)
                             arcPlacingStarted = false;
-                        else
+                        else {
                             UpdateArcGhost(ScreenToWorldSnap(e.mousePosition));
+
+                            Handles.DrawWireDisc(Vector3.zero, Vector3.forward, arcRadius);
+                        }
                     else
                     {
                         if (ghost == null)
@@ -566,8 +582,11 @@ public class LevelEditorGUI : EditorWindow
                                 RemoveGhosts();
 
                                 arcFirstPosition = ScreenToWorldSnap(e.mousePosition);
+                                arcRadius = arcFirstPosition.magnitude;
                                 arcPlacingStarted = true;
                                 PlaceArcGhost();
+
+                                Handles.DrawWireDisc(Vector3.zero, Vector3.back, arcRadius);
                             }
                             break;
                         }
@@ -605,6 +624,89 @@ public class LevelEditorGUI : EditorWindow
             }
         }
         #endregion MouseDown
+
+
+        #region Guide rajzolás
+        switch (PlacingMode)
+        {
+            case PlacingModes.Off:
+                break;
+            case PlacingModes.Single:
+                if (ghost != null)
+                {
+                    float rad = ghost.transform.position.magnitude;
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad-radialThickness);
+                }
+                break;
+            case PlacingModes.Arc:
+                if (ghost != null)
+                {
+                    float rad = ghost.transform.position.magnitude;
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                }
+                break;
+            case PlacingModes.Wall:
+                if (ghost != null)
+                {
+                    if (wallPlacingStarted)
+                    {
+                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallOuterRadius);
+                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallInnerRadius);
+                    }
+                    else {
+                        float rad = ghost.transform.position.magnitude;
+                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    }
+                }
+                break;
+            case PlacingModes.Ring:
+                if (ghost != null)
+                {
+                    float rad = ghost.transform.position.magnitude;
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                }
+                break;
+            default:
+                break;
+        }
+        #endregion Guide rajzolás
+
+
+        #region Rotator handle
+        if (PlacingMode == PlacingModes.Off && Tools.current != Tool.View && Selection.gameObjects.Length > 0)
+        {
+            Color defColor = Handles.color;
+            Handles.color = Color.magenta;
+            float rotatorDiscRadius = 0;
+            foreach (GameObject obj in Selection.gameObjects)
+            {
+                float objRadius = obj.transform.position.magnitude;
+                if (objRadius > rotatorDiscRadius) rotatorDiscRadius = objRadius;
+            }
+            EditorGUI.BeginChangeCheck();
+            rotatorDiscCurrentRotation = Handles.Disc(rotatorDiscCurrentRotation, Vector3.back * 2f, Vector3.back, rotatorDiscRadius, false, 360f / GetAngularGridDensity(rotatorDiscRadius));
+            if (EditorGUI.EndChangeCheck())
+            {
+                float angle = rotatorDiscPreviousRotation.eulerAngles.z - rotatorDiscCurrentRotation.eulerAngles.z;
+                foreach (GameObject obj in Selection.gameObjects)
+                {
+                    Undo.RecordObject(obj.transform, "Rotate");
+                    obj.transform.RotateAround(Vector3.zero, Vector3.back, angle);
+                }
+                rotatorDiscPreviousRotation = rotatorDiscCurrentRotation;
+            }
+            Handles.color = defColor;
+        }
+        #endregion Rotator handle
+
+        //radiusTest = Handles.RadiusHandle(Quaternion.identity, Vector3.zero, radiusTest);
+        //doPositionTest = Handles.DoPositionHandle(doPositionTest, FaceAxis.GetRotator(doPositionTest));
+        //freeMoveTest = Handles.FreeMoveHandle(freeMoveTest, FaceAxis.GetRotator(freeMoveTest),0.5f, Vector3.one*0.6f, Handles.CylinderHandleCap);
+        //positionTest = Handles.PositionHandle(positionTest, FaceAxis.GetRotator(positionTest));
     }
 
     #endregion Scene update
@@ -717,6 +819,7 @@ public class LevelEditorGUI : EditorWindow
     {
         foreach (GameObject obj in Selection.gameObjects)
         {
+            Undo.RecordObject(obj.transform, "Rotate Selection");
             obj.transform.rotation = GetRotator(obj.transform.position, true);
         }
     }
@@ -836,8 +939,9 @@ public class LevelEditorGUI : EditorWindow
         {
             ghost = Instantiate(inventory[selectedItem].prefab, wallFirstPosition, GetRotator(wallFirstPosition));
             ghost.hideFlags |= HideFlags.HideInHierarchy;
-            float rad = wallFirstPosition.magnitude;
-            ghost.GetComponent<ArcMesh>().SetParams(rad - radialThickness, rad, 1, GetAngularGridDensity(rad), 768, 0);
+            float rad = wallOuterRadius = wallFirstPosition.magnitude;
+            wallInnerRadius = rad - radialThickness;
+            ghost.GetComponent<ArcMesh>().SetParams(wallInnerRadius, rad, 1, GetAngularGridDensity(rad), 768, 0);
             ghost.AddComponent<GhostPlaceholder>();
         }
     }
@@ -850,13 +954,16 @@ public class LevelEditorGUI : EditorWindow
             if (rad2 < wallFirstRadius)
             {
                 ghost.transform.position = wallFirstPosition;
-                ghost.GetComponent<ArcMesh>().SetParams(rad2 - radialThickness, wallFirstRadius, 1, GetAngularGridDensity(wallFirstRadius), 768, 0);
+                wallInnerRadius = rad2 - radialThickness;
+                wallOuterRadius = wallFirstRadius;
             }
             else if (rad2 > wallFirstRadius)
             {
+                wallInnerRadius = wallFirstRadius - radialThickness;
+                wallOuterRadius = rad2;
                 ghost.transform.position = Vector3.Normalize(wallFirstPosition) * rad2;
-                ghost.GetComponent<ArcMesh>().SetParams(wallFirstRadius - radialThickness, rad2, 1, GetAngularGridDensity(wallFirstRadius), 768, 0);
             }
+            ghost.GetComponent<ArcMesh>().SetParams(wallInnerRadius, wallOuterRadius, 1, GetAngularGridDensity(wallFirstRadius), 768, 0);
         }
     }
 
@@ -888,7 +995,6 @@ public class LevelEditorGUI : EditorWindow
         {
             ghost = Instantiate(inventory[selectedItem].prefab, arcFirstPosition, GetRotator(arcFirstPosition));
             ghost.hideFlags |= HideFlags.HideInHierarchy;
-            arcRadius = arcFirstPosition.magnitude;
             ghost.GetComponent<ArcMesh>().SetParams(arcRadius - radialThickness, arcRadius, 1, GetAngularGridDensity(arcRadius), 768, 0);
             ghost.AddComponent<GhostPlaceholder>();
         }

@@ -35,7 +35,7 @@ public class RigidbodyFPS2D : MonoBehaviour
     //public float runBackwardSpeed = 6.0f;
     //public float sidestepSpeed = 8.0f;
     //public float runSidestepSpeed = 12.0f;
-    public float maxVelocityChange = 10.0f;
+    private float maxVelocityChange = 10.0f;
 
     // Air
     private float inAirControl = 0.0f;
@@ -44,9 +44,9 @@ public class RigidbodyFPS2D : MonoBehaviour
     public float jumpTimeout = 0.1f;
 
     // Can Flags
-    public bool canRunSidestep = true;
+    //public bool canRunSidestep = true;
     public bool canJump = true;
-    public bool canRun = true;
+    //public bool canRun = true;
 
     #endregion
 
