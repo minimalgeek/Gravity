@@ -103,6 +103,22 @@ public class UniformRotationField : Singleton<UniformRotationField>
     //}
 
 
+    public void AffectParticles(ref ParticleSystem.Particle[] particles, int aliveCount)
+    {
+        for (int i = 0; i < aliveCount; ++i)
+        {
+            particles[i].velocity += (Vector3.Cross(omega2, particles[i].velocity) + particles[i].position * centrifugalFactor) * Time.fixedDeltaTime;
+        }
+    }
+
+
+    public void AffectParticles(ref ParticleSystem.Particle[] particles, int aliveCount, float factor)
+    {
+        for (int i = 0; i < aliveCount; ++i)
+        {
+            particles[i].velocity += (Vector3.Cross(omega2, particles[i].velocity) + particles[i].position * centrifugalFactor) * Time.fixedDeltaTime * factor;
+        }
+    }
 
 
     void OnDrawGizmosSelected()

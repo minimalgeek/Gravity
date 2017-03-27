@@ -17,7 +17,7 @@ public class RigidbodyFPS2D : MonoBehaviour
     private Rigidbody2D rb;
     private CollisionSinkingDetector sinkingDetector;
     private bool sinkingSuspended = true;
-    private Vector2 groundNormal;
+    //private Vector2 groundNormal;
 
     // Inputs Cache
     private bool jumpFlag = false;
@@ -230,7 +230,7 @@ public class RigidbodyFPS2D : MonoBehaviour
         if (!isJumping)
         {
             var minRadius = capsule.transform.position.magnitude + capsule.size.y * 0.5f - capsule.size.x * 0.45f;// capsule.bounds. + capsule.size.x * .9f;
-            groundNormal = Vector2.zero;
+            //groundNormal = Vector2.zero;
             foreach (var contact in collision.contacts)
             {
                 if (contact.point.magnitude > minRadius)
@@ -258,9 +258,7 @@ public class RigidbodyFPS2D : MonoBehaviour
                     sinkingSuspended = false;
                     sinkingDetector.ColliderEnabled = true;
 
-                    groundNormal = contact.normal;
-                    Debug.Log(groundNormal);
-
+                    //groundNormal = contact.normal;
                     break;
                 }
             }

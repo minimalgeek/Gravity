@@ -47,7 +47,7 @@ MonoBehaviour:
     displayIcon: {fileID: 2800000, guid: 91a187591e2d42b4d8bfe444f82a21f4, type: 3}
     prefab: {fileID: 1616430375169610, guid: 9c077b7e5af66a0468af510bd9b06fb3, type: 2}
   - displayName: Double teleport gate
-    displayIcon: {fileID: 2800000, guid: 0c6dc42f345f15e44860facbd7c1c8b7, type: 3}
+    displayIcon: {fileID: 2800000, guid: befb6152e755b4840a883d54cf3884bf, type: 3}
     prefab: {fileID: 1272663720942794, guid: c1ee62d49f8430e41bfec6e8758cf562, type: 2}
   - displayName: Rotation switch
     displayIcon: {fileID: 2800000, guid: 8e56e49dccc8259439b38cba0ef2117f, type: 3}
