@@ -8,6 +8,7 @@ public class PhysicalParticleSystem : MonoBehaviour {
     public float fieldFactor = 1f;
 
     ParticleSystem ps;
+    ParticleSystem.MainModule main;
     ParticleSystem.Particle[] particles;
     int aliveCount;
     UniformRotationField field;
@@ -16,6 +17,8 @@ public class PhysicalParticleSystem : MonoBehaviour {
     {
         ps = GetComponent<ParticleSystem>();
         Assert.IsNotNull(ps);
+        main = ps.main;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
         GameObject fieldObject = GameObject.FindGameObjectWithTag("MainForceField");
         Assert.IsNotNull(fieldObject);
         field = fieldObject.GetComponent<UniformRotationField>();

@@ -9,8 +9,8 @@ public class LevelEditorGUI : EditorWindow
     #region Fields
 
     //float radiusTest = 1f;
-    Quaternion rotatorDiscCurrentRotation = Quaternion.identity;
-    Quaternion rotatorDiscPreviousRotation = Quaternion.identity;
+    Quaternion tangentialDiscCurrentRotation = Quaternion.identity;
+    Quaternion tangentialDiscPreviousRotation = Quaternion.identity;
     //Vector3 doPositionTest = new Vector2(3, 3);
     //Vector3 freeMoveTest = new Vector2(3, -3);
     //Vector3 positionTest = new Vector2(-3, -3);
@@ -626,7 +626,7 @@ public class LevelEditorGUI : EditorWindow
         #endregion MouseDown
 
 
-        #region Guide rajzolás
+        #region Guides
         switch (PlacingMode)
         {
             case PlacingModes.Off:
@@ -636,7 +636,7 @@ public class LevelEditorGUI : EditorWindow
                 {
                     float rad = ghost.transform.position.magnitude;
                     Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad-radialThickness);
+                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             case PlacingModes.Arc:
@@ -673,35 +673,50 @@ public class LevelEditorGUI : EditorWindow
             default:
                 break;
         }
-        #endregion Guide rajzolás
+        #endregion Guides
 
 
-        #region Rotator handle
+        #region Handles
         if (PlacingMode == PlacingModes.Off && Tools.current != Tool.View && Selection.gameObjects.Length > 0)
         {
-            Color defColor = Handles.color;
-            Handles.color = Color.magenta;
-            float rotatorDiscRadius = 0;
-            foreach (GameObject obj in Selection.gameObjects)
+            float tangentialDiscRadius = 0;
+            Vector3 centerPosition = Vector3.zero;
+            foreach (GameObject obj in Selection.GetFiltered(typeof(GameObject), SelectionMode.Editable | SelectionMode.Deep))
             {
                 float objRadius = obj.transform.position.magnitude;
-                if (objRadius > rotatorDiscRadius) rotatorDiscRadius = objRadius;
+                if (objRadius > tangentialDiscRadius) tangentialDiscRadius = objRadius;
+                centerPosition += obj.transform.position.WithZ(0f);
             }
+            Vector3 centerDirection = Vector3.Normalize(centerPosition);
+            centerPosition = centerDirection * tangentialDiscRadius;
+
+            Color defColor = Handles.color;
+            Handles.color = Color.magenta;
+
+            #region Tangential handle
             EditorGUI.BeginChangeCheck();
-            rotatorDiscCurrentRotation = Handles.Disc(rotatorDiscCurrentRotation, Vector3.back * 2f, Vector3.back, rotatorDiscRadius, false, 360f / GetAngularGridDensity(rotatorDiscRadius));
+            tangentialDiscCurrentRotation = Handles.Disc(tangentialDiscCurrentRotation, Vector3.back * 2f, Vector3.back, tangentialDiscRadius, false, 360f / GetAngularGridDensity(tangentialDiscRadius));
             if (EditorGUI.EndChangeCheck())
             {
-                float angle = rotatorDiscPreviousRotation.eulerAngles.z - rotatorDiscCurrentRotation.eulerAngles.z;
-                foreach (GameObject obj in Selection.gameObjects)
-                {
-                    Undo.RecordObject(obj.transform, "Rotate");
-                    obj.transform.RotateAround(Vector3.zero, Vector3.back, angle);
-                }
-                rotatorDiscPreviousRotation = rotatorDiscCurrentRotation;
+                float angle = tangentialDiscPreviousRotation.eulerAngles.z - tangentialDiscCurrentRotation.eulerAngles.z;
+                MoveSelectionTangential(angle);
+                tangentialDiscPreviousRotation = tangentialDiscCurrentRotation;
             }
+            #endregion Tangential handle
+
+            #region Radial handle
+            EditorGUI.BeginChangeCheck();
+            Vector3 newCenterPosition = Handles.Slider(centerPosition, -centerDirection, HandleUtility.GetHandleSize(centerPosition) * 1.4f, Handles.ArrowHandleCap, radialThickness);
+            if (EditorGUI.EndChangeCheck())
+            {
+                float deltaRadius = (newCenterPosition - centerPosition).Dot(centerDirection);
+                MoveSelectionRadial(deltaRadius);
+            }
+            #endregion Radial handle
+
             Handles.color = defColor;
         }
-        #endregion Rotator handle
+        #endregion Handles
 
         //radiusTest = Handles.RadiusHandle(Quaternion.identity, Vector3.zero, radiusTest);
         //doPositionTest = Handles.DoPositionHandle(doPositionTest, FaceAxis.GetRotator(doPositionTest));
@@ -821,6 +836,47 @@ public class LevelEditorGUI : EditorWindow
         {
             Undo.RecordObject(obj.transform, "Rotate Selection");
             obj.transform.rotation = GetRotator(obj.transform.position, true);
+        }
+    }
+
+    void MoveSelectionTangential(float angle)
+    {
+        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel))
+        {
+            Undo.RecordObject(transform, "Move Tangentially");
+            transform.RotateAround(Vector3.zero, Vector3.back, angle);
+        }
+    }
+
+    void MoveSelectionRadial(float deltaRadius)
+    {
+        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel))
+        {
+            MoveTransformRadial(transform, deltaRadius);
+        }
+    }
+
+    void MoveTransformRadial(Transform transform, float deltaRadius)
+    {
+        Vector3 disp = Vector3.Normalize(transform.position.WithZ(0)) * deltaRadius;
+
+        Undo.RecordObject(transform, "Move Radially");
+        transform.position += disp;
+
+        foreach (Transform subtransform in transform)
+        {
+            Undo.RecordObject(subtransform, "Move Radially");
+            subtransform.position -= disp;
+
+            MoveTransformRadial(subtransform, deltaRadius);
+        }
+
+        ArcMesh arcMesh = transform.gameObject.GetComponent<ArcMesh>();
+        if (arcMesh != null)
+        {
+            //Undo.RegisterCompleteObjectUndo(arcMesh, "Move Radially");
+            //Undo.RecordObjects(new Object[] { arcMesh, arcMesh.gameObject.GetComponent<MeshFilter>(), arcMesh.gameObject.GetComponent<PolygonCollider2D>() }, "Move Radially");
+            arcMesh.SetParams(arcMesh.InnerRadius + deltaRadius, arcMesh.OuterRadius + deltaRadius, arcMesh.ArcNumerator, arcMesh.ArcDenominator, arcMesh.AngularResolution, arcMesh.ZOffset, true);
         }
     }
 

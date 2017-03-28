@@ -9,25 +9,31 @@ public class ArcMesh : MonoBehaviour
     [SerializeField]
     [Delayed]
     private int angularResolution = 768;
+    public int AngularResolution { get { return angularResolution; } }
 
     [SerializeField]
     [Delayed]
     private float innerRadius = 20;
+    public float InnerRadius { get { return innerRadius; } }
 
     [SerializeField]
     [Delayed]
     private float outerRadius = 20.25f;
+    public float OuterRadius { get { return outerRadius; } }
 
     [SerializeField]
     [Delayed]
     private int arcNumerator = 1;
+    public int ArcNumerator { get { return arcNumerator; } }
     [SerializeField]
     [Delayed]
     private int arcDenominator = 192;
+    public int ArcDenominator { get { return arcDenominator; } }
 
     [SerializeField]
     [Delayed]
     private float zOffset = 0;
+    public float ZOffset { get { return zOffset; } }
 
     private PolygonCollider2D polyCollider;
     private MeshFilter meshFilter;
@@ -51,7 +57,7 @@ public class ArcMesh : MonoBehaviour
         return comp;
     }
 
-    public void SetParams(float innerRadius, float outerRadius, int arcNumerator, int arcDenominator, int angularResolution, float zOffset)
+    public void SetParams(float innerRadius, float outerRadius, int arcNumerator, int arcDenominator, int angularResolution, float zOffset, bool doUndo = false)
     {
         this.innerRadius = innerRadius;
         this.outerRadius = outerRadius;
@@ -59,10 +65,10 @@ public class ArcMesh : MonoBehaviour
         this.arcDenominator = arcDenominator;
         this.angularResolution = angularResolution;
         this.zOffset = zOffset;
-        CreatePoints();
+        CreatePoints(doUndo);
     }
 
-    public void CreatePoints()
+    public void CreatePoints(bool doUndo = false)
     {
         polyCollider = GetOrAddComponent<PolygonCollider2D>();
         meshFilter = GetOrAddComponent<MeshFilter>();
@@ -101,10 +107,31 @@ public class ArcMesh : MonoBehaviour
             pos = stepRotator * pos;
         }
 
+#if UNITY_EDITOR
+        //string undoName = UnityEditor.Undo.GetCurrentGroupName();
+        //if (undoName == "") undoName = "Arc";
+        //Debug.Log(undoName);
+        //UnityEditor.Undo.RegisterCompleteObjectUndo(this, undoName);
+        //UnityEditor.Undo.RecordObject(meshFilter, undoName);
+        //UnityEditor.Undo.RecordObject(mesh, undoName);
+#endif
+
         mesh.Clear();
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(mesh, undoName);
+#endif
         mesh.vertices = vertices;
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(mesh, undoName);
+#endif
         mesh.normals = normals;
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(mesh, undoName);
+#endif
         mesh.uv = uvs;
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(mesh, undoName);
+#endif
         mesh.uv2 = uvs;
         int[] triangles = new int[(vertices.Length - 2) * 3];
         for (int i = 0; i < realSegments; i++)
@@ -117,12 +144,21 @@ public class ArcMesh : MonoBehaviour
             triangles[6 * i + 4] = 2 * i + 1;
             triangles[6 * i + 5] = 2 * i + 3;
         }
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(mesh, undoName);
+#endif
         mesh.triangles = triangles;
 
         innerPath.Reverse();
         outerPath.AddRange(innerPath);
 
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(polyCollider, undoName);
+#endif
         polyCollider.pathCount = 1;
+#if UNITY_EDITOR
+        //UnityEditor.Undo.RecordObject(polyCollider, undoName);
+#endif
         polyCollider.SetPath(0, outerPath.ToArray());
     }
 }
