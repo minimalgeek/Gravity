@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 61663437322623966}
   - component: {fileID: 114677651752076452}
   - component: {fileID: 114205024607603174}
+  - component: {fileID: 114516936226289330}
   m_Layer: 0
   m_Name: GravitySwitch
   m_TagString: Untagged
@@ -122,6 +123,17 @@ MonoBehaviour:
   - angularVelocity: 1
     animationClip: {fileID: 7400000, guid: 2dcf7927034220241baac5ca5f243b8b, type: 2}
   animator: {fileID: 95145742808681912}
+--- !u!114 &114516936226289330
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1536845410908720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fea6c3d2b48048e4191a3d70a667e3cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114677651752076452
 MonoBehaviour:
   m_ObjectHideFlags: 1
