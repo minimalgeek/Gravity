@@ -677,44 +677,48 @@ public class LevelEditorGUI : EditorWindow
 
 
         #region Handles
-        if (PlacingMode == PlacingModes.Off && Tools.current != Tool.View && Selection.gameObjects.Length > 0)
+        if (PlacingMode == PlacingModes.Off && Tools.current != Tool.View)
         {
-            float tangentialDiscRadius = 0;
-            Vector3 centerPosition = Vector3.zero;
-            foreach (GameObject obj in Selection.GetFiltered(typeof(GameObject), SelectionMode.Editable | SelectionMode.Deep))
+            Object[] objects = Selection.GetFiltered(typeof(GameObject), SelectionMode.Editable | SelectionMode.Deep | SelectionMode.ExcludePrefab);
+            if (objects.Length > 0)
             {
-                float objRadius = obj.transform.position.magnitude;
-                if (objRadius > tangentialDiscRadius) tangentialDiscRadius = objRadius;
-                centerPosition += obj.transform.position.WithZ(0f);
+                float tangentialDiscRadius = 0;
+                Vector3 centerPosition = Vector3.zero;
+                foreach (GameObject obj in objects)
+                {
+                    float objRadius = obj.transform.position.magnitude;
+                    if (objRadius > tangentialDiscRadius) tangentialDiscRadius = objRadius;
+                    centerPosition += obj.transform.position.WithZ(0f);
+                }
+                Vector3 centerDirection = Vector3.Normalize(centerPosition);
+                centerPosition = centerDirection * tangentialDiscRadius;
+
+                Color defColor = Handles.color;
+                Handles.color = Color.magenta;
+
+                #region Tangential handle
+                EditorGUI.BeginChangeCheck();
+                tangentialDiscCurrentRotation = Handles.Disc(tangentialDiscCurrentRotation, Vector3.back * 2f, Vector3.back, tangentialDiscRadius, false, 360f / GetAngularGridDensity(tangentialDiscRadius));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    float angle = tangentialDiscPreviousRotation.eulerAngles.z - tangentialDiscCurrentRotation.eulerAngles.z;
+                    MoveSelectionTangential(angle);
+                    tangentialDiscPreviousRotation = tangentialDiscCurrentRotation;
+                }
+                #endregion Tangential handle
+
+                #region Radial handle
+                EditorGUI.BeginChangeCheck();
+                Vector3 newCenterPosition = Handles.Slider(centerPosition, -centerDirection, HandleUtility.GetHandleSize(centerPosition) * 1.4f, Handles.ArrowHandleCap, radialThickness);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    float deltaRadius = (newCenterPosition - centerPosition).Dot(centerDirection);
+                    MoveSelectionRadial(deltaRadius);
+                }
+                #endregion Radial handle
+
+                Handles.color = defColor;
             }
-            Vector3 centerDirection = Vector3.Normalize(centerPosition);
-            centerPosition = centerDirection * tangentialDiscRadius;
-
-            Color defColor = Handles.color;
-            Handles.color = Color.magenta;
-
-            #region Tangential handle
-            EditorGUI.BeginChangeCheck();
-            tangentialDiscCurrentRotation = Handles.Disc(tangentialDiscCurrentRotation, Vector3.back * 2f, Vector3.back, tangentialDiscRadius, false, 360f / GetAngularGridDensity(tangentialDiscRadius));
-            if (EditorGUI.EndChangeCheck())
-            {
-                float angle = tangentialDiscPreviousRotation.eulerAngles.z - tangentialDiscCurrentRotation.eulerAngles.z;
-                MoveSelectionTangential(angle);
-                tangentialDiscPreviousRotation = tangentialDiscCurrentRotation;
-            }
-            #endregion Tangential handle
-
-            #region Radial handle
-            EditorGUI.BeginChangeCheck();
-            Vector3 newCenterPosition = Handles.Slider(centerPosition, -centerDirection, HandleUtility.GetHandleSize(centerPosition) * 1.4f, Handles.ArrowHandleCap, radialThickness);
-            if (EditorGUI.EndChangeCheck())
-            {
-                float deltaRadius = (newCenterPosition - centerPosition).Dot(centerDirection);
-                MoveSelectionRadial(deltaRadius);
-            }
-            #endregion Radial handle
-
-            Handles.color = defColor;
         }
         #endregion Handles
 
@@ -841,7 +845,7 @@ public class LevelEditorGUI : EditorWindow
 
     void MoveSelectionTangential(float angle)
     {
-        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel))
+        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel | SelectionMode.ExcludePrefab))
         {
             Undo.RecordObject(transform, "Move Tangentially");
             transform.RotateAround(Vector3.zero, Vector3.back, angle);
@@ -850,7 +854,7 @@ public class LevelEditorGUI : EditorWindow
 
     void MoveSelectionRadial(float deltaRadius)
     {
-        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel))
+        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel | SelectionMode.ExcludePrefab))
         {
             MoveTransformRadial(transform, deltaRadius);
         }
