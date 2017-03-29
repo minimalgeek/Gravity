@@ -1076,10 +1076,10 @@ public class LevelEditorGUI : EditorWindow
         float deltaAngle = 360f / angularGridDensity;
         Quaternion rotator = Quaternion.Euler(0, 0, deltaAngle);
 
-        GameObject ringRoot = new GameObject("Ring " + R);
+        GameObject ringRoot = new GameObject("Ring " + R, typeof(SelectionBase));
+        ringRoot.transform.parent = rootTransform;
         GameObject go = inventory[selectedItem].prefab;
         bool arc = inventory[selectedItem].isArc;
-        ringRoot.transform.parent = rootTransform;
         for (int i = 0; i < angularGridDensity; i++)
         {
             pos = rotator * pos;
