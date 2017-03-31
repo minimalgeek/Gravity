@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using Gamelogic.Extensions;
 using System.Collections.Generic;
 
@@ -169,6 +168,7 @@ public class LevelEditorGUI : EditorWindow
 
     void OnDisable()
     {
+        SceneView.onSceneGUIDelegate -= OnSceneGUI;
         RemoveGhosts();
     }
 
@@ -202,13 +202,13 @@ public class LevelEditorGUI : EditorWindow
                 if (GUILayout.Toggle(PlacingMode == PlacingModes.Off, placingModes[0], "button", GUILayout.Width(buttonWidth)))
                 {
                     PlacingMode = PlacingModes.Off;
-                    wallPlacingStarted = false;
+                    arcPlacingStarted = wallPlacingStarted = false;
                     RemoveGhosts();
                 }
                 if (GUILayout.Toggle(PlacingMode == PlacingModes.Single, placingModes[1], "button", GUILayout.Width(buttonWidth)))
                 {
                     PlacingMode = PlacingModes.Single;
-                    wallPlacingStarted = false;
+                    arcPlacingStarted = wallPlacingStarted = false;
                 }
                 using (new EditorGUI.DisabledGroupScope(!CatalogLoaded || !inventory[selectedItem].isArc))
                 {
@@ -218,11 +218,14 @@ public class LevelEditorGUI : EditorWindow
                         wallPlacingStarted = false;
                     }
                     if (GUILayout.Toggle(PlacingMode == PlacingModes.Wall, placingModes[3], "button", GUILayout.Width(buttonWidth)))
+                    {
                         PlacingMode = PlacingModes.Wall;
+                        arcPlacingStarted = false;
+                    }
                     if (GUILayout.Toggle(PlacingMode == PlacingModes.Ring, placingModes[4], "button", GUILayout.Width(buttonWidth)))
                     {
                         PlacingMode = PlacingModes.Ring;
-                        wallPlacingStarted = false;
+                        arcPlacingStarted = wallPlacingStarted = false;
                     }
                 }
             }
@@ -571,7 +574,7 @@ public class LevelEditorGUI : EditorWindow
                             {
                                 arcPlacingStarted = false;
                                 DestroyImmediate(ghost.GetComponent<GhostPlaceholder>());
-                                ghost.hideFlags &= ~HideFlags.HideInHierarchy;
+                                ghost.hideFlags = 0;
                                 ghost.transform.parent = rootTransform;
                                 Undo.RegisterCreatedObjectUndo(ghost, "Place Arc");
                                 ghost = null;
@@ -598,7 +601,7 @@ public class LevelEditorGUI : EditorWindow
                                 //PlaceWall(wallFirstPosition, ScreenToWorldSnap(e.mousePosition));
                                 wallPlacingStarted = false;
                                 DestroyImmediate(ghost.GetComponent<GhostPlaceholder>());
-                                ghost.hideFlags &= ~HideFlags.HideInHierarchy;
+                                ghost.hideFlags = 0;
                                 ghost.transform.parent = rootTransform;
                                 Undo.RegisterCreatedObjectUndo(ghost, "Place Wall");
                                 ghost = null;
