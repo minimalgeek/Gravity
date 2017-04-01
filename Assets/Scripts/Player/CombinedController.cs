@@ -19,68 +19,63 @@ public class CombinedController : GLMonoBehaviour
     {
         Grounded, WasGrounded, Falling, PerformsJump, Hanging, Climbing
     }
+
+
+    #region Variables and properties
+
     private State state = State.Falling;
 
-
-    #region Variables (private)
-
-    private bool grounded = false;
-    //private bool inAir = false;
-    public bool Grounded { get { return grounded; } }
-    private Vector2 groundVelocity;
-    private CapsuleCollider2D capsule;
-    private Rigidbody2D rb;
-    public CollisionSinkingDetector sinkingDetector;
-    private bool sinkingSuspended = true;
-    //private Vector2 groundNormal;
-
     private Facing facing = Facing.Right;
+        
+    // Speeds
+    [Header("Walking")]
+    public float walkSpeed = 12.0f;
 
-    [SerializeField]
-    private Transform itemHoldingPoint;
-    public Transform ItemHoldingTransform { get { return itemHoldingPoint; } }
+    private float maxVelocityChange = 10.0f;
 
 
     // Jumping
+    [Header("Jumping")]
+    public bool canJump = true;
+    public float jumpSpeed = 12f;
+    public float jumpTimeout = 0.07f;
+    public float jumpCooldownTime = 0.1f;
+    public float jumpClearanceTime = 0.05f;
+
     private bool jumpFlag = false;
     private float jumpPressTime;
     private float jumpTime;
     private bool isJumping = false;
 
+
+    // Ground detection
+    [Header("Ground Detection")]
+    public CollisionSinkingDetector sinkingDetector;
+
+    private bool grounded = false;
+    public bool Grounded { get { return grounded; } }
+    private Vector2 groundVelocity;
+    private CapsuleCollider2D capsule;
+    private Rigidbody2D rb;
+    private bool sinkingSuspended = true;
+    //private Vector2 groundNormal;
+
     // Climbing
-    private bool upperDetected, lowerDetected;//, isHanging; // all climbing related booleans
+    [Header("Climbing")]
     public CollisionSinkingDetector climbUpperDetector;
     public CollisionSinkingDetector climbLowerDetector;
     public Transform climbDestination;
     public float climbingTime = 0.5f;
 
-    #endregion
+    private bool upperDetected, lowerDetected; // all climbing related booleans
 
-    #region Properties (public)
+    // Interaction
+    [Header("Interaction")]
+    [SerializeField]
+    private Transform itemHoldingPoint;
+    public Transform ItemHoldingTransform { get { return itemHoldingPoint; } }
 
-    // Speeds
-    public float walkSpeed = 8.0f;
-    //public float walkBackwardSpeed = 4.0f;
-    //public float runSpeed = 14.0f;
-    //public float runBackwardSpeed = 6.0f;
-    //public float sidestepSpeed = 8.0f;
-    //public float runSidestepSpeed = 12.0f;
-    private float maxVelocityChange = 10.0f;
-
-    // Air
-    private float inAirControl = 0.0f;
-    //public float jumpHeight = 2.0f;
-    public float jumpSpeed = 10f;
-    public float jumpTimeout = 0.07f;
-    public float jumpCooldown = 0.1f;
-    public float jumpClearance = 0.05f;
-
-    // Can Flags
-    //public bool canRunSidestep = true;
-    public bool canJump = true;
-    //public bool canRun = true;
-
-    #endregion
+    #endregion Variables and properties
 
     #region Unity event functions
 
@@ -123,7 +118,7 @@ public class CombinedController : GLMonoBehaviour
     void Update()
     {
         // Cache the input
-        if (Input.GetAxis("Jump") > 0 && canJump && Time.time - jumpTime > jumpCooldown)
+        if (Input.GetAxis("Jump") > 0 && canJump && Time.time - jumpTime > jumpCooldownTime)
         {
             jumpFlag = true;
             jumpPressTime = Time.time;
@@ -143,10 +138,7 @@ public class CombinedController : GLMonoBehaviour
         Facing prevFacing = facing;
         facing = inputVector.x < 0 ? Facing.Left : (inputVector.x > 0) ? Facing.Right : prevFacing;
         if (facing != prevFacing) Flip();
-
-        System.Console.WriteLine("teszt");
-        Debug.Log("");
-        Debug.Log(state.ToString() + "  jF: " + jumpFlag);
+        
 
         // State machine transition handling
         switch (state)
@@ -189,7 +181,7 @@ public class CombinedController : GLMonoBehaviour
                 break;
 
             case State.PerformsJump:
-                if (Time.time - jumpTime > jumpClearance)
+                if (Time.time - jumpTime > jumpClearanceTime)
                 {
                     if (grounded) state = State.Grounded;
                     else state = State.Falling;
@@ -213,8 +205,7 @@ public class CombinedController : GLMonoBehaviour
                 break;
         }
         grounded = false;
-
-        Debug.Log(state.ToString());
+        
 
         // State machine perstistent state handling
         switch (state)
@@ -261,7 +252,6 @@ public class CombinedController : GLMonoBehaviour
 
     void DoJump()
     {
-        Debug.Log("DoJump");
         rb.velocity = rb.velocity - (Vector2)Vector3.Normalize(rb.position) * jumpSpeed;// new Vector2(rb.velocity.x, rb.velocity.y + CalculateJumpVerticalSpeed());
         sinkingSuspended = true;
         sinkingDetector.ColliderEnabled = false;
@@ -322,29 +312,13 @@ public class CombinedController : GLMonoBehaviour
     {
         // Calculate how fast we should be moving
         var relativeVelocity = (Vector2)transform.TransformDirection(inputVector);
-        //Vector2 relativeVelocity = new Vector2(groundNormal.y, -groundNormal.x) * inputVector.x + groundNormal * inputVector.y;
-
-        //if (inputVector.y > 0)
-        //{
-        //    relativeVelocity.y *= (canRun && Input.GetKey(KeyCode.LeftShift)/*GetButton("Sprint")*/) ? runSpeed : walkSpeed;
-        //}
-        //else
-        //{
-        //    relativeVelocity.y *= (canRun && Input.GetKey(KeyCode.LeftShift)/*GetButton("Sprint")*/) ? runBackwardSpeed : walkBackwardSpeed;
-        //}
-        //relativeVelocity.x *= (canRunSidestep && Input.GetKey(KeyCode.LeftShift)/*GetButton("Sprint")*/) ? runSidestepSpeed : sidestepSpeed;
-        relativeVelocity *= walkSpeed;// (canRun && Input.GetKey(KeyCode.LeftShift)) ? runSpeed : walkSpeed;
-
-
-        //Vector3 initialStep = transform.right * inputVector.x * walkSpeed;
-        //Vector2 relativeVelocity = Vector3.Normalize(transform.position + initialStep) * transform.position.magnitude - transform.position + transform.up * inputVector.y * walkSpeed;
+        relativeVelocity *= walkSpeed;
 
         // Calcualte the delta velocity
         var currRelativeVelocity = rb.velocity - groundVelocity;
         var velocityChange = relativeVelocity - currRelativeVelocity;
         velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
         velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);
-        //velocityChange.y = 0;
 
         return velocityChange;
     }
@@ -367,12 +341,6 @@ public class CombinedController : GLMonoBehaviour
             / Time.fixedDeltaTime
             - (Vector3)rb.velocity;
     }
-
-    // From the jump height and gravity we deduce the upwards speed for the character to reach at the apex.
-    //private float CalculateJumpVerticalSpeed()
-    //{
-    //    return Mathf.Sqrt(2f * jumpHeight * Mathf.Abs(Physics.gravity.y));
-    //}
 
     // Check if the base of the capsule is colliding to track if it's grounded
     private void TrackGrounded(Collision2D collision)
