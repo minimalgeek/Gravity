@@ -25,7 +25,7 @@ public class ItemPickupAction : BaseAction {
 
 	new void Start () {
 		base.Start();
-		holdingPoint = characterController.itemHoldingPoint.transform;
+		holdingPoint = characterController.ItemHoldingTransform;
 		toCenterRotator = GetComponent<ToCenterRotator>();
 
 		rb = GetComponent<Rigidbody2D>();
@@ -52,7 +52,7 @@ public class ItemPickupAction : BaseAction {
 			transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
 		} else {
 			SetPickedUp(false);
-			float yForce = characterController.GetFacingDirection() == Facing.RIGHT ? -throwSpeed : throwSpeed;
+			float yForce = characterController.GetFacingDirection() == CombinedController.Facing.Right ? -throwSpeed : throwSpeed;
 			rb.AddForce(Vector3.zero.WithY(yForce), ForceMode2D.Impulse);
 			this.transform.SetParent(null);
 		}

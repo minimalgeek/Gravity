@@ -5,12 +5,10 @@ using Gamelogic.Extensions;
 
 public class CollisionSinkingDetector : GLMonoBehaviour
 {
-
     public delegate void TriggerAction(Collider2D other);
+    public event TriggerAction TriggerEnter;
     public event TriggerAction TriggerStay;
     public event TriggerAction TriggerLeave;
-
-    public LayerMask groundLayer;
 
     private bool colliderEnabled;
     public bool ColliderEnabled
@@ -20,27 +18,25 @@ public class CollisionSinkingDetector : GLMonoBehaviour
         {
             colliderEnabled = value;
             foreach (var coll in GetComponents<Collider2D>())
-            {
                 coll.enabled = colliderEnabled;
-            }
         }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (TriggerEnter != null)
+            TriggerEnter(other);
     }
 
     void OnTriggerStay2D(Collider2D other)
     {
-        if ((1 << other.gameObject.layer) == groundLayer)
-        {
-            if (TriggerStay != null)
-                TriggerStay(other);
-        }
+        if (TriggerStay != null)
+            TriggerStay(other);
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if ((1 << other.gameObject.layer) == groundLayer)
-        {
-            if (TriggerLeave != null)
-                TriggerLeave(other);
-        }
+        if (TriggerLeave != null)
+            TriggerLeave(other);
     }
 }
