@@ -54,6 +54,8 @@ public class LevelEditorGUI : EditorWindow
     Vector2 itemSelectorScrollPosition;
     int selectedItem;
 
+    bool drawGuides = true;
+
     //GameObject block;
     GameObject ghost;
 
@@ -250,12 +252,15 @@ public class LevelEditorGUI : EditorWindow
         #endregion Rotation controls
 
         #region Radial and angular snapping controls
-        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
+        using (new EditorGUILayout.HorizontalScope())
         {
-            using (new EditorGUILayout.HorizontalScope())
+            using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
             {
                 GUILayout.Label("Snapping:", GUILayout.Width(146));
-                using (new EditorGUILayout.HorizontalScope())
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
                 {
 
                     var snapHS = new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(57));
@@ -267,9 +272,15 @@ public class LevelEditorGUI : EditorWindow
                     GUILayout.Label(" Angular");
                     snapHS.Dispose();
 
+                    GUILayout.FlexibleSpace();
+                    drawGuides = EditorGUILayout.ToggleLeft("Guides", drawGuides, GUILayout.Width(60));
                 }
             }
 
+        }
+
+        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
+        {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Angular Divisions", GUILayout.Width(146));
@@ -493,7 +504,7 @@ public class LevelEditorGUI : EditorWindow
                         else {
                             UpdateArcGhost(ScreenToWorldSnap(e.mousePosition));
 
-                            Handles.DrawWireDisc(Vector3.zero, Vector3.forward, arcRadius);
+                            if (drawGuides) Handles.DrawWireDisc(Vector3.zero, Vector3.forward, arcRadius);
                         }
                     else
                     {
@@ -589,7 +600,7 @@ public class LevelEditorGUI : EditorWindow
                                 arcPlacingStarted = true;
                                 PlaceArcGhost();
 
-                                Handles.DrawWireDisc(Vector3.zero, Vector3.back, arcRadius);
+                                if (drawGuides) Handles.DrawWireDisc(Vector3.zero, Vector3.back, arcRadius);
                             }
                             break;
                         }
@@ -638,16 +649,16 @@ public class LevelEditorGUI : EditorWindow
                 if (ghost != null)
                 {
                     float rad = ghost.transform.position.magnitude;
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             case PlacingModes.Arc:
                 if (ghost != null)
                 {
                     float rad = ghost.transform.position.magnitude;
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             case PlacingModes.Wall:
@@ -655,13 +666,13 @@ public class LevelEditorGUI : EditorWindow
                 {
                     if (wallPlacingStarted)
                     {
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallOuterRadius);
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallInnerRadius);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallOuterRadius);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallInnerRadius);
                     }
                     else {
                         float rad = ghost.transform.position.magnitude;
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                     }
                 }
                 break;
@@ -669,8 +680,8 @@ public class LevelEditorGUI : EditorWindow
                 if (ghost != null)
                 {
                     float rad = ghost.transform.position.magnitude;
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             default:
@@ -864,6 +875,7 @@ public class LevelEditorGUI : EditorWindow
     }
 
     void MoveTransformRadial(Transform transform, float deltaRadius)
+
     {
         Vector3 disp = Vector3.Normalize(transform.position.WithZ(0)) * deltaRadius;
 
@@ -886,6 +898,7 @@ public class LevelEditorGUI : EditorWindow
             arcMesh.SetParams(arcMesh.InnerRadius + deltaRadius, arcMesh.OuterRadius + deltaRadius, arcMesh.ArcNumerator, arcMesh.ArcDenominator, arcMesh.AngularResolution, arcMesh.ZOffset, true);
         }
     }
+
 
     Vector3 ScreenToWorld(Vector2 mousePosition)
     {
@@ -936,6 +949,7 @@ public class LevelEditorGUI : EditorWindow
     }
 
     Quaternion GetRotator(Vector2 pos, bool forcePolar)
+
     {
         if (forcePolar || autoRotateEnabled)
         {
@@ -944,6 +958,7 @@ public class LevelEditorGUI : EditorWindow
 
         return Quaternion.identity;
     }
+
 
     int GetAngularGridDensity(float r, bool forceAuto = false)
     {

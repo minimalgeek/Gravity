@@ -479,18 +479,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6abe3be93debd7a4aa2618f3e36939ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  walkSpeed: 12
+  canJump: 1
+  jumpSpeed: 12
+  jumpTimeout: 0.07
+  jumpCooldownTime: 0.1
+  jumpClearanceTime: 0.05
   sinkingDetector: {fileID: 114609204467030304}
-  itemHoldingPoint: {fileID: 4777995436257226}
   climbUpperDetector: {fileID: 114124194087065198}
   climbLowerDetector: {fileID: 114400824932076238}
   climbDestination: {fileID: 4457033768784010}
   climbingTime: 0.5
-  walkSpeed: 12
-  jumpSpeed: 12
-  jumpTimeout: 0.07
-  jumpCooldown: 0.1
-  jumpClearance: 0.05
-  canJump: 1
+  itemHoldingPoint: {fileID: 4777995436257226}
 --- !u!114 &114400824932076238
 MonoBehaviour:
   m_ObjectHideFlags: 1
