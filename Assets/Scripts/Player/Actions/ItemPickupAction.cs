@@ -52,7 +52,7 @@ public class ItemPickupAction : BaseAction {
 			transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
 		} else {
 			SetPickedUp(false);
-			float yForce = characterController.GetFacingDirection() == CombinedController.Facing.Right ? -throwSpeed : throwSpeed;
+			float yForce = characterController.GetFacingDirection() == CombinedController.Facing.Right ? throwSpeed : -throwSpeed;
 			rb.AddForce(Vector3.zero.WithY(yForce), ForceMode2D.Impulse);
 			this.transform.SetParent(null);
 		}

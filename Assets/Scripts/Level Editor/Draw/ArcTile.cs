@@ -78,7 +78,7 @@ public class ArcTile : MonoBehaviour
             int realSegments = Mathf.Max(angularResolution * arcNumerator / arcDenominator, 1);
             line.startWidth = outerRadius - innerRadius;
             line.endWidth = line.startWidth;
-            line.numPositions = realSegments + 1;
+            line.positionCount = realSegments + 1;
 
             float centralAngle = 360f * arcNumerator / arcDenominator;
             // Ez lehet, hogy redundáns. TODO: Megvizsgálni, hogy a realSegments int castja miatt nem lenne-e rossz a 360f / angularResolution!
