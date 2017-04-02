@@ -110,12 +110,8 @@ public class CombinedController : GLMonoBehaviour
     void Start()
     {
         groundDetector.TriggerStay += OnSinkingStay;
-
-        climbUpperDetector.TriggerEnter += ((o) => upperDetectionCount++);
-        climbUpperDetector.TriggerLeave += ((o) => upperDetectionCount--);
-
-        climbLowerDetector.TriggerEnter += ((o) => lowerDetectionCount++);
-        climbLowerDetector.TriggerLeave += ((o) => lowerDetectionCount--);
+        climbUpperDetector.TriggerStay += ((o) => upperDetectionCount++);
+        climbLowerDetector.TriggerStay += ((o) => lowerDetectionCount++);
     }
 
     /// <summary>
@@ -144,7 +140,6 @@ public class CombinedController : GLMonoBehaviour
         Facing prevFacing = facing;
         facing = inputVector.x < 0 ? Facing.Left : (inputVector.x > 0) ? Facing.Right : prevFacing;
         if (facing != prevFacing) Flip();
-
 
         // State machine transition handling
         switch (state)
@@ -211,6 +206,7 @@ public class CombinedController : GLMonoBehaviour
                 break;
         }
         grounded = false;
+        upperDetectionCount = lowerDetectionCount = 0;
 
 
         // State machine perstistent state handling
