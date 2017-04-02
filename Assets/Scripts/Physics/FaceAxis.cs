@@ -1,15 +1,16 @@
-﻿using UnityEngine;
+﻿using Gamelogic.Extensions;
+using UnityEngine;
 
 [ExecuteInEditMode]
-public class FaceAxis : MonoBehaviour
+public class FaceAxis : GLMonoBehaviour
 {
     // Rotate object to face the axis.
-    public bool autoRotate = true;
+    // public bool autoRotate = true;
 
     // Update is called once per frame
     void Update()
     {
-        if (autoRotate)
+        // if (autoRotate)
             transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(transform.position.x, -transform.position.y) * Mathf.Rad2Deg, Vector3.forward);
     }
 

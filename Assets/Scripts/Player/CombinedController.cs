@@ -26,6 +26,11 @@ public class CombinedController : GLMonoBehaviour
     private State state = State.Falling;
 
     private Facing facing = Facing.Right;
+    
+    public Vector2 velocity {
+        get { return rb.velocity; }
+        set { rb.velocity = value; }
+    }
 
     // Speeds
     [Header("Walking")]

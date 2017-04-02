@@ -11,7 +11,6 @@ public class PhysicalParticleSystem : MonoBehaviour {
     ParticleSystem.MainModule main;
     ParticleSystem.Particle[] particles;
     int aliveCount;
-    UniformRotationField field;
 
     void Awake()
     {
@@ -19,10 +18,6 @@ public class PhysicalParticleSystem : MonoBehaviour {
         Assert.IsNotNull(ps);
         main = ps.main;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        GameObject fieldObject = GameObject.FindGameObjectWithTag("MainForceField");
-        Assert.IsNotNull(fieldObject);
-        field = fieldObject.GetComponent<UniformRotationField>();
-        Assert.IsNotNull(field);
     }
     
 	void Start ()
@@ -34,9 +29,9 @@ public class PhysicalParticleSystem : MonoBehaviour {
 	void FixedUpdate () {
         aliveCount = ps.GetParticles(particles);
         if (fieldFactor == 1f)
-            field.AffectParticles(ref particles, aliveCount);
+            RotationField.Instance.AffectParticles(ref particles, aliveCount);
         else
-            field.AffectParticles(ref particles, aliveCount, fieldFactor);
+            RotationField.Instance.AffectParticles(ref particles, aliveCount, fieldFactor);
         ps.SetParticles(particles, aliveCount);
     }
 }

@@ -705,6 +705,10 @@ public class LevelEditorGUI : EditorWindow
                     centerPosition += obj.transform.position.WithZ(0f);
                 }
                 Vector3 centerDirection = Vector3.Normalize(centerPosition);
+                if (tangentialDiscRadius == 0) {
+                    tangentialDiscRadius = 1;
+                    centerDirection = Vector3.down;
+                }
                 centerPosition = centerDirection * tangentialDiscRadius;
 
                 Color defColor = Handles.color;

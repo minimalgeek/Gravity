@@ -3,7 +3,7 @@ using System.Collections;
 
 public class AmbientRotator : MonoBehaviour
 {
-    public UniformRotationField field;
+    public RotationField field;
 
     private Rigidbody2D rb;
 

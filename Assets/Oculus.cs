@@ -10,7 +10,6 @@ public class Oculus : GLMonoBehaviour
 
     Rigidbody2D parentRB;
     CombinedController player;
-    UniformRotationField field;
 	Transform pickup;
 	CombinedController.Facing prevFacing;
 
@@ -24,7 +23,6 @@ public class Oculus : GLMonoBehaviour
         {
             parentRB = GetComponentInParent<Rigidbody2D>();
             player = GetComponentInParent<CombinedController>();
-            field = GameObject.FindGameObjectWithTag("MainForceField").GetComponent<UniformRotationField>();
 			pickup = player.ItemHoldingTransform;
 			prevFacing = player.GetFacingDirection();
         }
@@ -43,7 +41,7 @@ public class Oculus : GLMonoBehaviour
 			}
 
             if (temporalEffect)
-                transform.rotation = Quaternion.SlerpUnclamped(transform.rotation, Quaternion.LookRotation(Vector3.forward, (Vector3)parentRB.velocity + player.GetFacingVector()) * Quaternion.AngleAxis(Time.time * field.AngularVelocity * Mathf.Rad2Deg, Vector3.back), juiceConstant);
+                transform.rotation = Quaternion.SlerpUnclamped(transform.rotation, Quaternion.LookRotation(Vector3.forward, (Vector3)parentRB.velocity + player.GetFacingVector()) * Quaternion.AngleAxis(Time.time * RotationField.Instance.AngularVelocity * Mathf.Rad2Deg, Vector3.back), juiceConstant);
             else
                 transform.rotation = Quaternion.SlerpUnclamped(transform.rotation, Quaternion.LookRotation(Vector3.forward, (Vector3)parentRB.velocity + player.GetFacingVector()), juiceConstant);
 

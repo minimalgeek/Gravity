@@ -1,8 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(UniformRotationField))]
-public class UniformRotationFieldEditor : Editor
+[CustomEditor(typeof(RotationField))]
+public class RotationFieldEditor : Editor
 {
     SerializedProperty omega;
     SerializedProperty frequency;
@@ -19,7 +19,7 @@ public class UniformRotationFieldEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        UniformRotationField field = ((UniformRotationField)target);
+        RotationField field = ((RotationField)target);
 
         EditorGUILayout.LabelField("+: CCW, -: CW");
         using (var check = new EditorGUI.ChangeCheckScope())
