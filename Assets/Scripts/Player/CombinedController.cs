@@ -26,7 +26,12 @@ public class CombinedController : GLMonoBehaviour
     private State state = State.Falling;
 
     private Facing facing = Facing.Right;
-        
+    
+    public Vector2 velocity {
+        get { return rb.velocity; }
+        set { rb.velocity = value; }
+    }
+
     // Speeds
     [Header("Walking")]
     public float walkSpeed = 12.0f;
@@ -50,7 +55,7 @@ public class CombinedController : GLMonoBehaviour
 
     // Ground detection
     [Header("Ground Detection")]
-    public CollisionSinkingDetector sinkingDetector;
+    public CollisionSinkingDetector groundDetector;
 
     private bool grounded = false;
     public bool Grounded { get { return grounded; } }
@@ -62,12 +67,13 @@ public class CombinedController : GLMonoBehaviour
 
     // Climbing
     [Header("Climbing")]
+    public bool canClimb = true;
     public CollisionSinkingDetector climbUpperDetector;
     public CollisionSinkingDetector climbLowerDetector;
     public Transform climbDestination;
     public float climbingTime = 0.5f;
 
-    private bool upperDetected, lowerDetected; // all climbing related booleans
+    private int upperDetectionCount, lowerDetectionCount;
 
     // Interaction
     [Header("Interaction")]
@@ -84,7 +90,7 @@ public class CombinedController : GLMonoBehaviour
     /// </summary>
     void Awake()
     {
-        Assert.IsNotNull(sinkingDetector);
+        Assert.IsNotNull(groundDetector);
         Assert.IsNotNull(climbUpperDetector);
         Assert.IsNotNull(climbLowerDetector);
         Assert.IsNotNull(climbDestination);
@@ -95,7 +101,7 @@ public class CombinedController : GLMonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
         rb.freezeRotation = true;
-        sinkingDetector = GetComponentInChildren<CollisionSinkingDetector>();
+        groundDetector = GetComponentInChildren<CollisionSinkingDetector>();
     }
 
     /// <summary>
@@ -103,13 +109,9 @@ public class CombinedController : GLMonoBehaviour
     /// </summary>
     void Start()
     {
-        sinkingDetector.TriggerStay += OnSinkingStay;
-
-        climbUpperDetector.TriggerStay += ((o) => upperDetected = true);
-        climbUpperDetector.TriggerLeave += ((o) => upperDetected = false);
-
-        climbLowerDetector.TriggerStay += ((o) => lowerDetected = true);
-        climbLowerDetector.TriggerLeave += ((o) => lowerDetected = false);
+        groundDetector.TriggerStay += OnSinkingStay;
+        climbUpperDetector.TriggerStay += ((o) => upperDetectionCount++);
+        climbLowerDetector.TriggerStay += ((o) => lowerDetectionCount++);
     }
 
     /// <summary>
@@ -138,7 +140,6 @@ public class CombinedController : GLMonoBehaviour
         Facing prevFacing = facing;
         facing = inputVector.x < 0 ? Facing.Left : (inputVector.x > 0) ? Facing.Right : prevFacing;
         if (facing != prevFacing) Flip();
-        
 
         // State machine transition handling
         switch (state)
@@ -173,7 +174,7 @@ public class CombinedController : GLMonoBehaviour
                     DoLand();
                     state = State.Grounded;
                 }
-                else if (!upperDetected && lowerDetected)
+                else if (canClimb && upperDetectionCount == 0 && lowerDetectionCount > 0)
                 {
                     DoHang();
                     state = State.Hanging;
@@ -205,7 +206,8 @@ public class CombinedController : GLMonoBehaviour
                 break;
         }
         grounded = false;
-        
+        upperDetectionCount = lowerDetectionCount = 0;
+
 
         // State machine perstistent state handling
         switch (state)
@@ -254,7 +256,7 @@ public class CombinedController : GLMonoBehaviour
     {
         rb.velocity = rb.velocity - (Vector2)Vector3.Normalize(rb.position) * jumpSpeed;// new Vector2(rb.velocity.x, rb.velocity.y + CalculateJumpVerticalSpeed());
         sinkingSuspended = true;
-        sinkingDetector.ColliderEnabled = false;
+        groundDetector.ColliderEnabled = false;
     }
 
     void DoHang()
@@ -374,7 +376,7 @@ public class CombinedController : GLMonoBehaviour
                     // Esta en el suelo
                     grounded = true;
                     sinkingSuspended = false;
-                    sinkingDetector.ColliderEnabled = true;
+                    groundDetector.ColliderEnabled = true;
 
                     //groundNormal = contact.normal;
                     break;
@@ -445,7 +447,7 @@ public class CombinedController : GLMonoBehaviour
         }
         state = newState;
     }
-    
+
     public void SetLocalVelocity(Vector2 newVelocity)
     {
         rb.velocity = transform.TransformDirection(newVelocity);

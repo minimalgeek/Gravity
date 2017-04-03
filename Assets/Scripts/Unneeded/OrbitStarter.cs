@@ -1,12 +1,18 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class OrbitStarter : MonoBehaviour
 {
-    public UniformRotationField field;
+    public enum RotationMode {
+        Ineratial, Corotating
+    }
 
-    // Use this for initialization
+    public RotationMode startingRotation = RotationMode.Corotating;
+    
     void Start () {
-        GetComponent<Rigidbody2D>().velocity = new Vector3(0, -field.GetTangentialSpeed(Mathf.Abs(transform.position.x)), 0);
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb) {
+            rb.velocity = RotationField.Instance.GetTangentialVelocity(rb.position);
+            if (startingRotation == RotationMode.Ineratial) rb.angularVelocity = -RotationField.Instance.AngularVelocity*Mathf.Rad2Deg;
+        }
 	}
 }

@@ -21,12 +21,12 @@ public class ItemPickupAction : BaseAction {
 	private BoxCollider2D pickupCollider;
 	private Rigidbody2D rb;
 
-	private ToCenterRotator toCenterRotator;
+	private FaceAxis toCenterRotator;
 
 	new void Start () {
 		base.Start();
 		holdingPoint = characterController.ItemHoldingTransform;
-		toCenterRotator = GetComponent<ToCenterRotator>();
+		toCenterRotator = GetComponent<FaceAxis>();
 
 		rb = GetComponent<Rigidbody2D>();
 		physicsCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == false);
@@ -52,9 +52,8 @@ public class ItemPickupAction : BaseAction {
 			transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
 		} else {
 			SetPickedUp(false);
-			float yForce = characterController.GetFacingDirection() == CombinedController.Facing.Right ? -throwSpeed : throwSpeed;
-			rb.AddForce(Vector3.zero.WithY(yForce), ForceMode2D.Impulse);
 			this.transform.SetParent(null);
+			rb.velocity = (Vector2)characterController.transform.up * throwSpeed + characterController.velocity;
 		}
 	}
 
