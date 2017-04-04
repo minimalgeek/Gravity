@@ -8,17 +8,17 @@ using Gamelogic.Extensions;
 
 public class ItemPickupAction : BaseAction {
 
-	public float throwSpeed = 5f;
+	public float throwSpeed = 12f;
 
 	[Tooltip("If the GameObject doesn't have a triggering collider" +
 	"(but has one for the physics collision), it generates one, " + 
-	"with this horizontal increment")]
-	public float triggerBoxIncrement = 0.5f;
+	"with this radius increment.")]
+	public float autoColliderSizeIncrement = 0.2f;
 	private bool pickedUpByPlayer;
 	private Transform holdingPoint;
 
-	private BoxCollider2D physicsCollider;
-	private BoxCollider2D pickupCollider;
+	private Collider2D physicsCollider;
+	private Collider2D pickupCollider;
 	private Rigidbody2D rb;
 
 	private FaceAxis toCenterRotator;
@@ -29,15 +29,16 @@ public class ItemPickupAction : BaseAction {
 		toCenterRotator = GetComponent<FaceAxis>();
 
 		rb = GetComponent<Rigidbody2D>();
-		physicsCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == false);
+		physicsCollider = Array.Find(GetComponents<Collider2D>(), x => x.isTrigger == false);
 
 		Assert.IsNotNull(rb);
 		Assert.IsNotNull(physicsCollider);
 
-		pickupCollider = Array.Find(GetComponents<BoxCollider2D>(), x => x.isTrigger == true);
+		pickupCollider = Array.Find(GetComponents<Collider2D>(), x => x.isTrigger == true);
 		if (!pickupCollider) {
-			pickupCollider = this.gameObject.AddComponent<BoxCollider2D>();
-			pickupCollider.size = new Vector2(physicsCollider.size.x + triggerBoxIncrement, physicsCollider.size.y);
+			pickupCollider = this.gameObject.AddComponent<CircleCollider2D>();
+			((CircleCollider2D)pickupCollider).radius *= Mathf.Sqrt(2f);// * (1f + autoColliderSizeIncrement);
+			((CircleCollider2D)pickupCollider).radius += autoColliderSizeIncrement;
 			pickupCollider.offset = physicsCollider.offset;
 			pickupCollider.isTrigger = true;
 		}
