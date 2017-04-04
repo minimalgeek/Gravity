@@ -10,9 +10,6 @@ public class Star : MonoBehaviour
     public float pickUpTime = 0.2f;
     private float scaleMultiplier = 1;
 
-    [SerializeField]
-    private Color color = new Color(1f, 0.847058824f, 0f, 1f); //FFD800FF
-
     void Start()
     {
         scale = transform.localScale;

@@ -18,11 +18,11 @@ public class BaseAction : GLMonoBehaviour, IAction
 	protected bool executionEnabled = false;
 
     protected GameObject player;
-    protected PolarCharacterController characterController;
+    protected CombinedController characterController;
 
 	protected void Start() {
 		player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
-        characterController = player.GetComponent<PolarCharacterController>();
+        characterController = player.GetComponent<CombinedController>();
 	}
 
     void Update()

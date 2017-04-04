@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using Gamelogic.Extensions;
 using System.Collections.Generic;
 
@@ -54,6 +53,8 @@ public class LevelEditorGUI : EditorWindow
 
     Vector2 itemSelectorScrollPosition;
     int selectedItem;
+
+    bool drawGuides = true;
 
     //GameObject block;
     GameObject ghost;
@@ -169,6 +170,7 @@ public class LevelEditorGUI : EditorWindow
 
     void OnDisable()
     {
+        SceneView.onSceneGUIDelegate -= OnSceneGUI;
         RemoveGhosts();
     }
 
@@ -202,13 +204,13 @@ public class LevelEditorGUI : EditorWindow
                 if (GUILayout.Toggle(PlacingMode == PlacingModes.Off, placingModes[0], "button", GUILayout.Width(buttonWidth)))
                 {
                     PlacingMode = PlacingModes.Off;
-                    wallPlacingStarted = false;
+                    arcPlacingStarted = wallPlacingStarted = false;
                     RemoveGhosts();
                 }
                 if (GUILayout.Toggle(PlacingMode == PlacingModes.Single, placingModes[1], "button", GUILayout.Width(buttonWidth)))
                 {
                     PlacingMode = PlacingModes.Single;
-                    wallPlacingStarted = false;
+                    arcPlacingStarted = wallPlacingStarted = false;
                 }
                 using (new EditorGUI.DisabledGroupScope(!CatalogLoaded || !inventory[selectedItem].isArc))
                 {
@@ -218,11 +220,14 @@ public class LevelEditorGUI : EditorWindow
                         wallPlacingStarted = false;
                     }
                     if (GUILayout.Toggle(PlacingMode == PlacingModes.Wall, placingModes[3], "button", GUILayout.Width(buttonWidth)))
+                    {
                         PlacingMode = PlacingModes.Wall;
+                        arcPlacingStarted = false;
+                    }
                     if (GUILayout.Toggle(PlacingMode == PlacingModes.Ring, placingModes[4], "button", GUILayout.Width(buttonWidth)))
                     {
                         PlacingMode = PlacingModes.Ring;
-                        wallPlacingStarted = false;
+                        arcPlacingStarted = wallPlacingStarted = false;
                     }
                 }
             }
@@ -247,12 +252,15 @@ public class LevelEditorGUI : EditorWindow
         #endregion Rotation controls
 
         #region Radial and angular snapping controls
-        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
+        using (new EditorGUILayout.HorizontalScope())
         {
-            using (new EditorGUILayout.HorizontalScope())
+            using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
             {
                 GUILayout.Label("Snapping:", GUILayout.Width(146));
-                using (new EditorGUILayout.HorizontalScope())
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
                 {
 
                     var snapHS = new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(57));
@@ -264,9 +272,15 @@ public class LevelEditorGUI : EditorWindow
                     GUILayout.Label(" Angular");
                     snapHS.Dispose();
 
+                    GUILayout.FlexibleSpace();
+                    drawGuides = EditorGUILayout.ToggleLeft("Guides", drawGuides, GUILayout.Width(60));
                 }
             }
 
+        }
+
+        using (new EditorGUI.DisabledGroupScope(!CatalogLoaded))
+        {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Angular Divisions", GUILayout.Width(146));
@@ -490,7 +504,7 @@ public class LevelEditorGUI : EditorWindow
                         else {
                             UpdateArcGhost(ScreenToWorldSnap(e.mousePosition));
 
-                            Handles.DrawWireDisc(Vector3.zero, Vector3.forward, arcRadius);
+                            if (drawGuides) Handles.DrawWireDisc(Vector3.zero, Vector3.forward, arcRadius);
                         }
                     else
                     {
@@ -571,7 +585,7 @@ public class LevelEditorGUI : EditorWindow
                             {
                                 arcPlacingStarted = false;
                                 DestroyImmediate(ghost.GetComponent<GhostPlaceholder>());
-                                ghost.hideFlags &= ~HideFlags.HideInHierarchy;
+                                ghost.hideFlags = 0;
                                 ghost.transform.parent = rootTransform;
                                 Undo.RegisterCreatedObjectUndo(ghost, "Place Arc");
                                 ghost = null;
@@ -586,7 +600,7 @@ public class LevelEditorGUI : EditorWindow
                                 arcPlacingStarted = true;
                                 PlaceArcGhost();
 
-                                Handles.DrawWireDisc(Vector3.zero, Vector3.back, arcRadius);
+                                if (drawGuides) Handles.DrawWireDisc(Vector3.zero, Vector3.back, arcRadius);
                             }
                             break;
                         }
@@ -598,7 +612,7 @@ public class LevelEditorGUI : EditorWindow
                                 //PlaceWall(wallFirstPosition, ScreenToWorldSnap(e.mousePosition));
                                 wallPlacingStarted = false;
                                 DestroyImmediate(ghost.GetComponent<GhostPlaceholder>());
-                                ghost.hideFlags &= ~HideFlags.HideInHierarchy;
+                                ghost.hideFlags = 0;
                                 ghost.transform.parent = rootTransform;
                                 Undo.RegisterCreatedObjectUndo(ghost, "Place Wall");
                                 ghost = null;
@@ -635,16 +649,16 @@ public class LevelEditorGUI : EditorWindow
                 if (ghost != null)
                 {
                     float rad = ghost.transform.position.magnitude;
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             case PlacingModes.Arc:
                 if (ghost != null)
                 {
                     float rad = ghost.transform.position.magnitude;
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             case PlacingModes.Wall:
@@ -652,13 +666,13 @@ public class LevelEditorGUI : EditorWindow
                 {
                     if (wallPlacingStarted)
                     {
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallOuterRadius);
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallInnerRadius);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallOuterRadius);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, wallInnerRadius);
                     }
                     else {
                         float rad = ghost.transform.position.magnitude;
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                        Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                        if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                     }
                 }
                 break;
@@ -666,8 +680,8 @@ public class LevelEditorGUI : EditorWindow
                 if (ghost != null)
                 {
                     float rad = ghost.transform.position.magnitude;
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
-                    Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad);
+                    if (drawGuides) Handles.DrawWireDisc(Vector3.back * 2f, Vector3.back, rad - radialThickness);
                 }
                 break;
             default:
@@ -677,44 +691,52 @@ public class LevelEditorGUI : EditorWindow
 
 
         #region Handles
-        if (PlacingMode == PlacingModes.Off && Tools.current != Tool.View && Selection.gameObjects.Length > 0)
+        if (PlacingMode == PlacingModes.Off && Tools.current != Tool.View)
         {
-            float tangentialDiscRadius = 0;
-            Vector3 centerPosition = Vector3.zero;
-            foreach (GameObject obj in Selection.GetFiltered(typeof(GameObject), SelectionMode.Editable | SelectionMode.Deep))
+            Object[] objects = Selection.GetFiltered(typeof(GameObject), SelectionMode.Editable | SelectionMode.Deep | SelectionMode.ExcludePrefab);
+            if (objects.Length > 0)
             {
-                float objRadius = obj.transform.position.magnitude;
-                if (objRadius > tangentialDiscRadius) tangentialDiscRadius = objRadius;
-                centerPosition += obj.transform.position.WithZ(0f);
+                float tangentialDiscRadius = 0;
+                Vector3 centerPosition = Vector3.zero;
+                foreach (GameObject obj in objects)
+                {
+                    float objRadius = obj.transform.position.magnitude;
+                    if (objRadius > tangentialDiscRadius) tangentialDiscRadius = objRadius;
+                    centerPosition += obj.transform.position.WithZ(0f);
+                }
+                Vector3 centerDirection = Vector3.Normalize(centerPosition);
+                if (tangentialDiscRadius == 0) {
+                    tangentialDiscRadius = 1;
+                    centerDirection = Vector3.down;
+                }
+                centerPosition = centerDirection * tangentialDiscRadius;
+
+                Color defColor = Handles.color;
+                Handles.color = Color.magenta;
+
+                #region Tangential handle
+                EditorGUI.BeginChangeCheck();
+                tangentialDiscCurrentRotation = Handles.Disc(tangentialDiscCurrentRotation, Vector3.back * 2f, Vector3.back, tangentialDiscRadius, false, 360f / GetAngularGridDensity(tangentialDiscRadius));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    float angle = tangentialDiscPreviousRotation.eulerAngles.z - tangentialDiscCurrentRotation.eulerAngles.z;
+                    MoveSelectionTangential(angle);
+                    tangentialDiscPreviousRotation = tangentialDiscCurrentRotation;
+                }
+                #endregion Tangential handle
+
+                #region Radial handle
+                EditorGUI.BeginChangeCheck();
+                Vector3 newCenterPosition = Handles.Slider(centerPosition, -centerDirection, HandleUtility.GetHandleSize(centerPosition) * 1.4f, Handles.ArrowHandleCap, radialThickness);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    float deltaRadius = (newCenterPosition - centerPosition).Dot(centerDirection);
+                    MoveSelectionRadial(deltaRadius);
+                }
+                #endregion Radial handle
+
+                Handles.color = defColor;
             }
-            Vector3 centerDirection = Vector3.Normalize(centerPosition);
-            centerPosition = centerDirection * tangentialDiscRadius;
-
-            Color defColor = Handles.color;
-            Handles.color = Color.magenta;
-
-            #region Tangential handle
-            EditorGUI.BeginChangeCheck();
-            tangentialDiscCurrentRotation = Handles.Disc(tangentialDiscCurrentRotation, Vector3.back * 2f, Vector3.back, tangentialDiscRadius, false, 360f / GetAngularGridDensity(tangentialDiscRadius));
-            if (EditorGUI.EndChangeCheck())
-            {
-                float angle = tangentialDiscPreviousRotation.eulerAngles.z - tangentialDiscCurrentRotation.eulerAngles.z;
-                MoveSelectionTangential(angle);
-                tangentialDiscPreviousRotation = tangentialDiscCurrentRotation;
-            }
-            #endregion Tangential handle
-
-            #region Radial handle
-            EditorGUI.BeginChangeCheck();
-            Vector3 newCenterPosition = Handles.Slider(centerPosition, -centerDirection, HandleUtility.GetHandleSize(centerPosition) * 1.4f, Handles.ArrowHandleCap, radialThickness);
-            if (EditorGUI.EndChangeCheck())
-            {
-                float deltaRadius = (newCenterPosition - centerPosition).Dot(centerDirection);
-                MoveSelectionRadial(deltaRadius);
-            }
-            #endregion Radial handle
-
-            Handles.color = defColor;
         }
         #endregion Handles
 
@@ -841,7 +863,7 @@ public class LevelEditorGUI : EditorWindow
 
     void MoveSelectionTangential(float angle)
     {
-        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel))
+        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel | SelectionMode.ExcludePrefab))
         {
             Undo.RecordObject(transform, "Move Tangentially");
             transform.RotateAround(Vector3.zero, Vector3.back, angle);
@@ -850,13 +872,14 @@ public class LevelEditorGUI : EditorWindow
 
     void MoveSelectionRadial(float deltaRadius)
     {
-        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel))
+        foreach (Transform transform in Selection.GetTransforms(SelectionMode.Editable | SelectionMode.TopLevel | SelectionMode.ExcludePrefab))
         {
             MoveTransformRadial(transform, deltaRadius);
         }
     }
 
     void MoveTransformRadial(Transform transform, float deltaRadius)
+
     {
         Vector3 disp = Vector3.Normalize(transform.position.WithZ(0)) * deltaRadius;
 
@@ -879,6 +902,7 @@ public class LevelEditorGUI : EditorWindow
             arcMesh.SetParams(arcMesh.InnerRadius + deltaRadius, arcMesh.OuterRadius + deltaRadius, arcMesh.ArcNumerator, arcMesh.ArcDenominator, arcMesh.AngularResolution, arcMesh.ZOffset, true);
         }
     }
+
 
     Vector3 ScreenToWorld(Vector2 mousePosition)
     {
@@ -929,6 +953,7 @@ public class LevelEditorGUI : EditorWindow
     }
 
     Quaternion GetRotator(Vector2 pos, bool forcePolar)
+
     {
         if (forcePolar || autoRotateEnabled)
         {
@@ -937,6 +962,7 @@ public class LevelEditorGUI : EditorWindow
 
         return Quaternion.identity;
     }
+
 
     int GetAngularGridDensity(float r, bool forceAuto = false)
     {
@@ -1076,10 +1102,10 @@ public class LevelEditorGUI : EditorWindow
         float deltaAngle = 360f / angularGridDensity;
         Quaternion rotator = Quaternion.Euler(0, 0, deltaAngle);
 
-        GameObject ringRoot = new GameObject("Ring " + R);
+        GameObject ringRoot = new GameObject("Ring " + R, typeof(SelectionBase));
+        ringRoot.transform.parent = rootTransform;
         GameObject go = inventory[selectedItem].prefab;
         bool arc = inventory[selectedItem].isArc;
-        ringRoot.transform.parent = rootTransform;
         for (int i = 0; i < angularGridDensity; i++)
         {
             pos = rotator * pos;

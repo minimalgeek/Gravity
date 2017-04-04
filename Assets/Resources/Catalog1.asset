@@ -11,15 +11,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33c2b32c28edd164a90ebf884ad0cc62, type: 3}
   m_Name: Catalog1
   m_EditorClassIdentifier: 
-  player: {fileID: 1847007308799620, guid: 931f9774d107e55498b60401053f27c3, type: 2}
-  camera: {fileID: 1741020209114354, guid: fa4b89a7aaac39e48926b64104e4f988, type: 2}
+  player: {fileID: 1997876988240508, guid: 949fabd4d8090404e87e33d083ff4920, type: 2}
+  camera: {fileID: 1017811340417536, guid: 83d9e8e49e263ef4fb1110335adc1587, type: 2}
   forceField: {fileID: 1826265351075444, guid: 7c54b70f3fcb36140b66ff503be681cf, type: 2}
   lights: {fileID: 1084417834244948, guid: 823d7568d9bd86c4faef6b23ce24464f, type: 2}
   placableObjects:
   - displayName: Arc
     displayIcon: {fileID: 2800000, guid: d5f1caf915e9e8149bbfcb3221fdbdf0, type: 3}
     prefab: {fileID: 1644306712358574, guid: d1a3482c6d8aebe4f80ed7fe2715b8b7, type: 2}
-  - displayName: Box 50
+  - displayName: Block 50
     displayIcon: {fileID: 0}
     prefab: {fileID: 188094, guid: 9977ce0467811654ca9c8c78e519d1cd, type: 2}
   - displayName: Star
@@ -31,9 +31,15 @@ MonoBehaviour:
   - displayName: Saw
     displayIcon: {fileID: 0}
     prefab: {fileID: 1368418891687878, guid: e437ae8259ba67a4494d8176b8f6bae7, type: 2}
-  - displayName: Ball
+  - displayName: Ball 50 (phys)
     displayIcon: {fileID: 0}
     prefab: {fileID: 181860, guid: 479c801a726ebd04ab578b06308443f1, type: 2}
+  - displayName: Box 100 (phys)
+    displayIcon: {fileID: 0}
+    prefab: {fileID: 1286749809174450, guid: f607deb0ba017cd43acfdf33aa1ae974, type: 2}
+  - displayName: Box 200 (phys)
+    displayIcon: {fileID: 0}
+    prefab: {fileID: 1286749809174450, guid: f607deb0ba017cd43acfdf33aa1ae974, type: 2}
   - displayName: Hint Dropper
     displayIcon: {fileID: 2800000, guid: 0c6dc42f345f15e44860facbd7c1c8b7, type: 3}
     prefab: {fileID: 1952541922000134, guid: e5216047846afff42bbf946534dc61f5, type: 2}

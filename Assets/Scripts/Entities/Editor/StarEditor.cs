@@ -5,12 +5,14 @@ using UnityEngine;
 [CanEditMultipleObjects]
 public class StarEditor : Editor
 {
-    SerializedProperty color;
+    [SerializeField]
+    private Color color = new Color(1f, 0.847058824f, 0f, 1f); //FFD800FF
+
     SerializedProperty pickUpTime;
 
     void OnEnable()
     {
-        color = serializedObject.FindProperty("color");
+        //color = serializedObject.FindProperty("color");
         pickUpTime = serializedObject.FindProperty("pickUpTime");
     }
 
@@ -22,13 +24,13 @@ public class StarEditor : Editor
 
         using (var check = new EditorGUI.ChangeCheckScope())
         {
-            color.colorValue = EditorGUILayout.ColorField("Color", color.colorValue);
+            color = EditorGUILayout.ColorField("Color", color);
             if (check.changed)
             {
                 Light light = star.GetComponentInChildren<Light>();
-                if (light != null) light.color = color.colorValue;
+                if (light != null) light.color = color;
                 Renderer renderer = star.GetComponent<Renderer>();
-                if (renderer != null) renderer.sharedMaterial.color = color.colorValue;
+                if (renderer != null) renderer.sharedMaterial.color = color;
             }
         }
         pickUpTime.floatValue = EditorGUILayout.FloatField("Pick-up Time", pickUpTime.floatValue);

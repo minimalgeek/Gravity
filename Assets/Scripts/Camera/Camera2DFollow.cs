@@ -6,7 +6,7 @@ using DG.Tweening;
 public class Camera2DFollow : GLMonoBehaviour
 {
     public Transform target;
-    private PolarCharacterController characterController;
+    private CombinedController characterController;
     public float damping = 1;
     public float rotationSpeed = 3;
     public float lookAheadValue = 2f;
@@ -22,7 +22,7 @@ public class Camera2DFollow : GLMonoBehaviour
         {
             GameObject player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
             target = player.transform;
-            characterController = player.GetComponent<PolarCharacterController>();
+            characterController = player.GetComponent<CombinedController>();
         }
         zOffset = (transform.position - target.position).z;
         transform.parent = null;

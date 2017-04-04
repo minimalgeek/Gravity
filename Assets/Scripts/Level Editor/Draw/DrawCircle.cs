@@ -104,7 +104,7 @@ public class DrawCircle : MonoBehaviour
     {
 
         int realSegments = (int)(segments * ((toAngle - fromAngle) / 360.0));
-        line.numPositions = realSegments + 1;
+        line.positionCount = realSegments + 1;
 
         float x;
         float y;

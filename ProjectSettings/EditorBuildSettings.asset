@@ -5,13 +5,29 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
+    path: Assets/Scenes/LevelSelector.unity
+  - enabled: 1
     path: Assets/Scenes/Main.unity
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/TileEditor test2.unity
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/TileEditor.unity
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/TileEditor2.unity
   - enabled: 1
     path: Assets/Scenes/Spacing-test.unity
+  - enabled: 1
+    path: Assets/Scenes/Checkpoint test.unity
+  - enabled: 1
+    path: Assets/Scenes/CircleGenerator.unity
+  - enabled: 1
+    path: Assets/Scenes/Mityu-customized.unity
+  - enabled: 1
+    path: Assets/Scenes/New prefabs test 2.unity
+  - enabled: 1
+    path: Assets/Scenes/New prefabs test.unity
+  - enabled: 1
+    path: Assets/Scenes/RotationSwitch test.unity
+  - enabled: 1
+    path: Assets/Scenes/Spacing-test Controller test.unity
