@@ -17,13 +17,14 @@ public class TeleportPlayerAction : BaseAction {
 	}
 
 	private IEnumerator Teleport() {
+		Vector3 sc = player.transform.localScale;
 		player.transform.DOScale(0.1f, 0.5f);
 		player.transform.DOMove(transform.position, 0.5f);
 		yield return new WaitForSeconds(0.5f);
 		player.transform.position = destination.transform.position;
         characterController.SetState(CombinedController.State.Falling);
 		characterController.SetLocalVelocity(Vector2.zero);
-		player.transform.DOScale(1f, 0.5f);
+		player.transform.DOScale(sc, 0.5f);
 	}
 	
 	void OnDrawGizmos()
