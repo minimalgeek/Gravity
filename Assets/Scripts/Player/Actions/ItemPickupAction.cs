@@ -77,6 +77,7 @@ public class ItemPickupAction : BaseAction {
 		while(true) {
 			throwSpeedMultiplier += Time.deltaTime;
 			throwSpeedMultiplier = Mathf.Clamp01(throwSpeedMultiplier);
+			yield return null;
 		}
 	}
 
