@@ -64,7 +64,7 @@ public class ItemPickupAction : BaseAction {
 
 	public override void PressExecute() {
 		characterController.canWalk = false;
-		StartCoroutine(ThrowSpeedCalculation());
+		StartCoroutine(ThrowSpeedMultiplierCalculation());
 	}
 
 	public override void ReleaseExecute() {
@@ -73,7 +73,7 @@ public class ItemPickupAction : BaseAction {
 		throwSpeedMultiplier = 0;
 	}
 
-	private IEnumerator ThrowSpeedCalculation() {
+	private IEnumerator ThrowSpeedMultiplierCalculation() {
 		while(true) {
 			throwSpeedMultiplier += Time.deltaTime;
 			throwSpeedMultiplier = Mathf.Clamp01(throwSpeedMultiplier);
@@ -99,7 +99,7 @@ public class ItemPickupAction : BaseAction {
 
 		float sideSpeed = FloatLerp(throwSpeedSideLight, throwSpeedSide, throwSpeedMultiplier);
 		float upSpeed = FloatLerp(throwSpeedUpLight, throwSpeedUp, throwSpeedMultiplier);
-
+		
 		if (leftDir && upDir) {
 			return up*upSpeed + left*sideSpeed;
 		} else if (rightDir && upDir) {

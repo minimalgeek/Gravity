@@ -113,6 +113,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyDirectionToTrigger: 0
   releaseSpeed: 3
+  throwSpeedUpLight: 5
+  throwSpeedSideLight: 5
   throwSpeedUp: 30
   throwSpeedSide: 30
   autoColliderSizeIncrement: 0.2
