@@ -111,9 +111,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46507f4b79c38b444b76967bf92955b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyDirectionToTrigger: 1
-  throwSpeed: 15
-  triggerBoxIncrement: 0.2
+  keyDirectionToTrigger: 0
+  releaseSpeed: 3
+  throwSpeedUp: 30
+  throwSpeedSide: 30
+  autoColliderSizeIncrement: 0.2
 --- !u!212 &212293336411890970
 SpriteRenderer:
   m_ObjectHideFlags: 1

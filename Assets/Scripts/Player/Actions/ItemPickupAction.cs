@@ -8,7 +8,11 @@ using Gamelogic.Extensions;
 
 public class ItemPickupAction : BaseAction {
 
-	public float throwSpeed = 12f;
+	public float releaseSpeed = 3f;
+	public float throwSpeedUpLight = 15f;
+	public float throwSpeedSideLight = 15f;
+	public float throwSpeedUp = 30f;
+	public float throwSpeedSide = 30f;
 
 	[Tooltip("If the GameObject doesn't have a triggering collider" +
 	"(but has one for the physics collision), it generates one, " + 
@@ -22,6 +26,7 @@ public class ItemPickupAction : BaseAction {
 	private Rigidbody2D rb;
 
 	private FaceAxis toCenterRotator;
+	private float throwSpeedMultiplier;
 
 	new void Start () {
 		base.Start();
@@ -43,18 +48,35 @@ public class ItemPickupAction : BaseAction {
 			pickupCollider.isTrigger = true;
 		}
 	}
-	
+
 	public override void Execute() {
 		pickedUpByPlayer = !pickedUpByPlayer;
-
+		SetPickedUp(pickedUpByPlayer);
+		
 		if (pickedUpByPlayer) {
-			SetPickedUp(true);
 			this.transform.SetParent(holdingPoint);
 			transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
 		} else {
-			SetPickedUp(false);
 			this.transform.SetParent(null);
-			rb.velocity = (Vector2)characterController.transform.up * throwSpeed + characterController.velocity;
+			rb.velocity = GetThrowSpeedAsVector() + characterController.velocity;
+		}
+	}
+
+	public override void PressExecute() {
+		characterController.canWalk = false;
+		StartCoroutine(ThrowSpeedCalculation());
+	}
+
+	public override void ReleaseExecute() {
+		characterController.canWalk = true;
+		StopAllCoroutines();
+		throwSpeedMultiplier = 0;
+	}
+
+	private IEnumerator ThrowSpeedCalculation() {
+		while(true) {
+			throwSpeedMultiplier += Time.deltaTime;
+			throwSpeedMultiplier = Mathf.Clamp01(throwSpeedMultiplier);
 		}
 	}
 
@@ -63,6 +85,39 @@ public class ItemPickupAction : BaseAction {
 		rb.simulated = !picked;
 		if (toCenterRotator)
 			toCenterRotator.enabled = !picked;
+	}
+
+	private Vector2 GetThrowSpeedAsVector() {
+		Vector2 up = characterController.transform.up;
+		Vector2 right = characterController.transform.right;
+		Vector2 left = right*-1;
+
+		bool leftDir = Input.GetAxisRaw("Horizontal") < 0;
+		bool rightDir = Input.GetAxisRaw("Horizontal") > 0;
+		bool upDir = Input.GetAxisRaw("Vertical") > 0;
+
+		float sideSpeed = FloatLerp(throwSpeedSideLight, throwSpeedSide, throwSpeedMultiplier);
+		float upSpeed = FloatLerp(throwSpeedUpLight, throwSpeedUp, throwSpeedMultiplier);
+
+		if (leftDir && upDir) {
+			return up*upSpeed + left*sideSpeed;
+		} else if (rightDir && upDir) {
+			return up*upSpeed + right*sideSpeed;
+		} else if (leftDir) {
+			return left*sideSpeed;
+		} else if (rightDir) {
+			return right*sideSpeed;
+		} else if (upDir) {
+			return up*upSpeed;
+		} else {
+			return up*releaseSpeed;
+		}
+		
+	}
+
+	private float FloatLerp(float from, float to, float time) {
+		float diff = to-from;
+		return from + diff*time;
 	}
 
 }

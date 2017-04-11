@@ -26,8 +26,9 @@ public class CombinedController : GLMonoBehaviour
     private State state = State.Falling;
 
     private Facing facing = Facing.Right;
-    
-    public Vector2 velocity {
+
+    public Vector2 velocity
+    {
         get { return rb.velocity; }
         set { rb.velocity = value; }
     }
@@ -68,6 +69,7 @@ public class CombinedController : GLMonoBehaviour
     // Climbing
     [Header("Climbing")]
     public bool canClimb = true;
+    public bool canWalk = true;
     public CollisionSinkingDetector climbUpperDetector;
     public CollisionSinkingDetector climbLowerDetector;
     public Transform climbDestination;
@@ -214,9 +216,12 @@ public class CombinedController : GLMonoBehaviour
         {
             case State.Grounded:
                 {
-                    // Apply a force that attempts to reach our target velocity
-                    Vector2 velocityChange = CalculateVelocityChange(inputVector);
-                    rb.AddForce(velocityChange * rb.mass, ForceMode2D.Impulse);
+                    if (canWalk)
+                    {
+                        // Apply a force that attempts to reach our target velocity
+                        Vector2 velocityChange = CalculateVelocityChange(inputVector);
+                        rb.AddForce(velocityChange * rb.mass, ForceMode2D.Impulse);
+                    }
 
                     break;
                 }
@@ -270,8 +275,8 @@ public class CombinedController : GLMonoBehaviour
         //physicsCollider.enabled = false; // Hm.
         transform.DOMove(climbDestination.position, climbingTime, false).OnComplete(() =>
         {
-            //physicsCollider.enabled = true;
-            rb.simulated = true;
+        //physicsCollider.enabled = true;
+        rb.simulated = true;
             state = State.Falling;
         });
     }
@@ -350,7 +355,7 @@ public class CombinedController : GLMonoBehaviour
         if (!isJumping)
         {
             var minRadius = capsule.transform.position.magnitude + capsule.size.y * 0.5f - capsule.size.x * 0.45f;// capsule.bounds. + capsule.size.x * .9f;
-            //groundNormal = Vector2.zero;
+                                                                                                                  //groundNormal = Vector2.zero;
             foreach (var contact in collision.contacts)
             {
                 if (contact.point.magnitude > minRadius)
