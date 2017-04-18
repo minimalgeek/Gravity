@@ -72,7 +72,6 @@ public class BaseAction : GLMonoBehaviour, IAction
         if (other.tag == TagsAndLayers.PLAYER)
         {
             executionEnabled = false;
-            ReleaseExecute();
         }
     }
 

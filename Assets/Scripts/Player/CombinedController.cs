@@ -82,6 +82,7 @@ public class CombinedController : GLMonoBehaviour
     [SerializeField]
     private Transform itemHoldingPoint;
     public Transform ItemHoldingTransform { get { return itemHoldingPoint; } }
+    public Transform throwCross;
 
     #endregion Variables and properties
 
@@ -97,6 +98,7 @@ public class CombinedController : GLMonoBehaviour
         Assert.IsNotNull(climbLowerDetector);
         Assert.IsNotNull(climbDestination);
         Assert.IsNotNull(itemHoldingPoint);
+        Assert.IsNotNull(throwCross);
 
         capsule = GetComponent<CapsuleCollider2D>();
         Assert.IsNotNull(capsule);
