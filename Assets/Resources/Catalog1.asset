@@ -55,6 +55,24 @@ MonoBehaviour:
   - displayName: Double teleport gate
     displayIcon: {fileID: 2800000, guid: befb6152e755b4840a883d54cf3884bf, type: 3}
     prefab: {fileID: 1272663720942794, guid: c1ee62d49f8430e41bfec6e8758cf562, type: 2}
+  - displayName: Chamber + chicken small box
+    displayIcon: {fileID: 2800000, guid: 1675582c621f28a498475e4dc07995b7, type: 3}
+    prefab: {fileID: 1967428708260034, guid: 793364e2b13ce474da605c27093a3aec, type: 2}
   - displayName: Rotation switch
     displayIcon: {fileID: 2800000, guid: 8e56e49dccc8259439b38cba0ef2117f, type: 3}
     prefab: {fileID: 1536845410908720, guid: c2c05ed36d613c447827ba8b0ac45ad9, type: 2}
+  - displayName: Chamber + chicken box
+    displayIcon: {fileID: 2800000, guid: 1675582c621f28a498475e4dc07995b7, type: 3}
+    prefab: {fileID: 1837333119311422, guid: fdbfa4e52bd8900468f0c684e28dc621, type: 2}
+  - displayName: Chamber + chicken big box
+    displayIcon: {fileID: 2800000, guid: 1675582c621f28a498475e4dc07995b7, type: 3}
+    prefab: {fileID: 1260208713250648, guid: 99e3edceb3ac8d54aae2355b86fd7b6f, type: 2}
+  - displayName: Chamber + chicken small round
+    displayIcon: {fileID: 2800000, guid: 1675582c621f28a498475e4dc07995b7, type: 3}
+    prefab: {fileID: 1967428708260034, guid: 08a4eb62642cfea4fa455c243a2329ee, type: 2}
+  - displayName: Chamber + chicken round
+    displayIcon: {fileID: 2800000, guid: 1675582c621f28a498475e4dc07995b7, type: 3}
+    prefab: {fileID: 1837333119311422, guid: 9fdeb08f3e5c5f64893921aa02713e51, type: 2}
+  - displayName: Chamber + chicken big round
+    displayIcon: {fileID: 2800000, guid: 1675582c621f28a498475e4dc07995b7, type: 3}
+    prefab: {fileID: 1260208713250648, guid: 6c68c17f0bb407b48857e9110982388a, type: 2}
