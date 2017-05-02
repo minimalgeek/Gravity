@@ -15,7 +15,7 @@ public class RigidbodyFPS2D : MonoBehaviour
     private Vector2 groundVelocity;
     private CapsuleCollider2D capsule;
     private Rigidbody2D rb;
-    private CollisionSinkingDetector sinkingDetector;
+    private CollisionDetector sinkingDetector;
     private bool sinkingSuspended = true;
     //private Vector2 groundNormal;
 
@@ -62,7 +62,7 @@ public class RigidbodyFPS2D : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
         rb.freezeRotation = true;
-        sinkingDetector = GetComponentInChildren<CollisionSinkingDetector>();
+        sinkingDetector = GetComponentInChildren<CollisionDetector>();
         Assert.IsNotNull(sinkingDetector);
         sinkingDetector.TriggerStay += OnSinkingStay;
         //sinkingDetector.TriggerLeave += OnSinkingLeave;
@@ -134,7 +134,7 @@ public class RigidbodyFPS2D : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(transform.position.x, -transform.position.y) * Mathf.Rad2Deg, Vector3.forward);
     }
 
-    void OnSinkingStay(Collider2D other)
+    void OnSinkingStay()
     {
         grounded = true && !sinkingSuspended;
     }

@@ -10,9 +10,19 @@ public class CollisionDetector : GLMonoBehaviour
     public event TriggerAction TriggerEnter;
     public event TriggerAction TriggerStay;
     public event TriggerAction TriggerLeave;
-
     [TooltipAttribute("Layers to trigger on")]
     public List<LayerMask> triggeringLayers = new List<LayerMask>();
+    private bool colliderEnabled;
+    public bool ColliderEnabled
+    {
+        get { return colliderEnabled; }
+        set
+        {
+            colliderEnabled = value;
+            foreach (var coll in GetComponents<Collider2D>())
+                coll.enabled = colliderEnabled;
+        }
+    }
 
     void OnTriggerStay2D(Collider2D other)
     {
@@ -42,7 +52,8 @@ public class CollisionDetector : GLMonoBehaviour
         }
     }
 
-    private bool IsTriggered(Collider2D other) {
+    private bool IsTriggered(Collider2D other)
+    {
         LayerMask otherLayer = (1 << other.gameObject.layer);
         return triggeringLayers.Contains(otherLayer);
     }

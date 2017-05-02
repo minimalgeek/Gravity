@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 4216310176477412}
   - component: {fileID: 61734376982557582}
   - component: {fileID: 50387783251542452}
-  - component: {fileID: 114124194087065198}
+  - component: {fileID: 114938272783468560}
   m_Layer: 9
   m_Name: Climb Upper Detector
   m_TagString: Untagged
@@ -72,8 +72,8 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4139598839035872}
-  - component: {fileID: 114609204467030304}
   - component: {fileID: 58165982945321620}
+  - component: {fileID: 114102673662366156}
   m_Layer: 9
   m_Name: Ground Sinking Detector
   m_TagString: Untagged
@@ -202,7 +202,7 @@ GameObject:
   - component: {fileID: 4759664878150492}
   - component: {fileID: 61057783802499978}
   - component: {fileID: 50093143419750248}
-  - component: {fileID: 114400824932076238}
+  - component: {fileID: 114495096465829350}
   m_Layer: 9
   m_Name: Climb Lower Detector
   m_TagString: Untagged
@@ -904,17 +904,22 @@ TrailRenderer:
     textureMode: 0
   m_MinVertexDistance: 0.1
   m_Autodestruct: 0
---- !u!114 &114124194087065198
+--- !u!114 &114102673662366156
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1222065582377702}
+  m_GameObject: {fileID: 1226214984339876}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d103716c5f806c4caa1bc8d9d6dbfdc, type: 3}
+  m_Script: {fileID: 11500000, guid: ef158bad5fd413c43b01736aaa2886fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  triggeringLayers:
+  - serializedVersion: 2
+    m_Bits: 256
+  - serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &114288018341919976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -932,16 +937,16 @@ MonoBehaviour:
   jumpTimeout: 0.07
   jumpCooldownTime: 0.1
   jumpClearanceTime: 0.05
-  groundDetector: {fileID: 114609204467030304}
+  groundDetector: {fileID: 114102673662366156}
   canClimb: 1
   canWalk: 1
-  climbUpperDetector: {fileID: 114124194087065198}
-  climbLowerDetector: {fileID: 114400824932076238}
+  climbUpperDetector: {fileID: 114938272783468560}
+  climbLowerDetector: {fileID: 114495096465829350}
   climbDestination: {fileID: 4457033768784010}
   climbingTime: 0.5
   itemHoldingPoint: {fileID: 4777995436257226}
   throwCross: {fileID: 4185141690528370}
---- !u!114 &114400824932076238
+--- !u!114 &114495096465829350
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -949,20 +954,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1706159238722570}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d103716c5f806c4caa1bc8d9d6dbfdc, type: 3}
+  m_Script: {fileID: 11500000, guid: ef158bad5fd413c43b01736aaa2886fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114609204467030304
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1226214984339876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d103716c5f806c4caa1bc8d9d6dbfdc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  triggeringLayers:
+  - serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &114659783947930686
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -991,6 +988,20 @@ MonoBehaviour:
   juiceConstant: 0.1
   temporalEffect: 0
   integrationCoefficient: 0.3
+--- !u!114 &114938272783468560
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1222065582377702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef158bad5fd413c43b01736aaa2886fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggeringLayers:
+  - serializedVersion: 2
+    m_Bits: 256
 --- !u!120 &120299732231329052
 LineRenderer:
   m_ObjectHideFlags: 1

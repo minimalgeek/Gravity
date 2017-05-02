@@ -56,7 +56,7 @@ public class CombinedController : Singleton<CombinedController>
 
     // Ground detection
     [Header("Ground Detection")]
-    public CollisionSinkingDetector groundDetector;
+    public CollisionDetector groundDetector;
 
     private bool grounded = false;
     public bool Grounded { get { return grounded; } }
@@ -70,8 +70,8 @@ public class CombinedController : Singleton<CombinedController>
     [Header("Climbing")]
     public bool canClimb = true;
     public bool canWalk = true;
-    public CollisionSinkingDetector climbUpperDetector;
-    public CollisionSinkingDetector climbLowerDetector;
+    public CollisionDetector climbUpperDetector;
+    public CollisionDetector climbLowerDetector;
     public Transform climbDestination;
     public float climbingTime = 0.5f;
 
@@ -105,7 +105,7 @@ public class CombinedController : Singleton<CombinedController>
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
         rb.freezeRotation = true;
-        groundDetector = GetComponentInChildren<CollisionSinkingDetector>();
+        groundDetector = GetComponentInChildren<CollisionDetector>();
     }
 
     /// <summary>
@@ -114,8 +114,8 @@ public class CombinedController : Singleton<CombinedController>
     void Start()
     {
         groundDetector.TriggerStay += OnSinkingStay;
-        climbUpperDetector.TriggerStay += ((o) => upperDetectionCount++);
-        climbLowerDetector.TriggerStay += ((o) => lowerDetectionCount++);
+        climbUpperDetector.TriggerStay += (() => upperDetectionCount++);
+        climbLowerDetector.TriggerStay += (() => lowerDetectionCount++);
     }
 
     /// <summary>
@@ -283,7 +283,7 @@ public class CombinedController : Singleton<CombinedController>
         });
     }
 
-    void OnSinkingStay(Collider2D other)
+    void OnSinkingStay()
     {
         grounded = true && !sinkingSuspended;
     }
