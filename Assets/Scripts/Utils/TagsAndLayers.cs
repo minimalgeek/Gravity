@@ -6,5 +6,6 @@ public class TagsAndLayers {
 
 	public static LayerMask GROUND = LayerMask.NameToLayer("Ground");
 	public const string PLAYER = "Player";
+	public const string CHICKEN_TAG = "Chicken";
 
 }

@@ -22,7 +22,7 @@ public class Gravity : Singleton<Gravity>
         FindAffectedObjects();
         foreach (Rigidbody2D rb in affectedObjects)
         {
-            if (rb.simulated)
+            if (rb.simulated && !rb.isKinematic)
                 Attract(rb);
         }
     }

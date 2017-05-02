@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - MainForceField
+  - Chicken
   layers:
   - Default
   - TransparentFX

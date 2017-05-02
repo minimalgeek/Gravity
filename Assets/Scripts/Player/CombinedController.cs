@@ -8,7 +8,7 @@ using Gamelogic.Extensions;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CapsuleCollider2D))]
-public class CombinedController : GLMonoBehaviour
+public class CombinedController : Singleton<CombinedController>
 {
     public enum Facing
     {

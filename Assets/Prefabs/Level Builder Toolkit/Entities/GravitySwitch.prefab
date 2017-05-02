@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyDirectionToTrigger: 0
-  withAcceleration: 1
+  withAcceleration: 0
   accelerationDuration: 5
   states:
   - angularVelocity: -0.8

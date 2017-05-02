@@ -52,8 +52,8 @@ public class ItemPickupAction : MouseBaseAction
     {
         if (!pickedUpByPlayer)
         {
-			SetPickedUp();
-			executionEnabled = false;
+            SwitchPickedUp();
+            executionEnabled = false;
             this.transform.SetParent(holdingPoint);
             this.transform.DOLocalMove(Vector2.zero, 1f).OnComplete(() => executionEnabled = true);
         }
@@ -68,9 +68,18 @@ public class ItemPickupAction : MouseBaseAction
     {
         if (pickedUpByPlayer)
         {
-			SetPickedUp();
-            this.transform.SetParent(null);
             rb.velocity = GetThrowSpeedAsVector() + characterController.velocity;
+            ReleaseAndTurnOffPickedUpBehaviour();
+        }
+    }
+
+    public void ReleaseAndTurnOffPickedUpBehaviour()
+    {
+        if (pickedUpByPlayer)
+        {
+            executionEnabled = false;
+            SwitchPickedUp();
+            this.transform.SetParent(null);
             StopAllCoroutines();
             throwSpeedMultiplier = 0;
             characterController.throwCross.gameObject.SetActive(false);
@@ -90,23 +99,23 @@ public class ItemPickupAction : MouseBaseAction
     private IEnumerator VisualFeedback()
     {
         characterController.throwCross.gameObject.SetActive(true);
-		LineRenderer renderer = characterController.throwCross.GetComponentInChildren<LineRenderer>();
+        LineRenderer renderer = characterController.throwCross.GetComponentInChildren<LineRenderer>();
         while (true)
         {
             Vector2 shiftingVector = GetThrowSpeedAsVector();
             float shiftingMagnitude = shiftingVector.magnitude;
-            shiftingVector = shiftingVector * (shiftingMagnitude/throwSpeedMax) * (maxDistanceFromPlayer/throwSpeedMax);
+            shiftingVector = shiftingVector * (shiftingMagnitude / throwSpeedMax) * (maxDistanceFromPlayer / throwSpeedMax);
 
             characterController.throwCross.position = player.transform.position.To2DXY() + shiftingVector;
-			renderer.SetPosition(0, characterController.transform.position);
-			renderer.SetPosition(1, characterController.throwCross.position);
+            renderer.SetPosition(0, characterController.transform.position);
+            renderer.SetPosition(1, characterController.throwCross.position);
             yield return null;
         }
     }
 
-    private void SetPickedUp()
+    private void SwitchPickedUp()
     {
-		pickedUpByPlayer = !pickedUpByPlayer;
+        pickedUpByPlayer = !pickedUpByPlayer;
 
         physicsCollider.isTrigger = pickedUpByPlayer;
         rb.simulated = !pickedUpByPlayer;
