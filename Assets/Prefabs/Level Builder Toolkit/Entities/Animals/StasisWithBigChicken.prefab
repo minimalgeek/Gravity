@@ -41,6 +41,7 @@ GameObject:
   - component: {fileID: 50825488180328756}
   - component: {fileID: 114964247259665142}
   - component: {fileID: 82371738016513066}
+  - component: {fileID: 114794006880644998}
   m_Layer: 12
   m_Name: Chicken
   m_TagString: Chicken
@@ -492,13 +493,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c478dd44c7aa05b49b307c46c1d2d297, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114964247259665142
+--- !u!114 &114794006880644998
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1046674024827934}
   m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edf5a9443dd7156469871aed8484b8b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyDirectionToTrigger: 0
+  throwSpeedMin: 5
+  throwSpeedMax: 30
+  maxReachTime: 2
+  maxDistanceFromPlayer: 3
+  autoColliderSizeIncrement: 0.2
+--- !u!114 &114964247259665142
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1046674024827934}
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46507f4b79c38b444b76967bf92955b0, type: 3}
   m_Name: 

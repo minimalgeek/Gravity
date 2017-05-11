@@ -777,7 +777,8 @@ public class LevelEditorGUI : EditorWindow
                 entry.displayName = Catalog[i].displayName;
                 entry.displayIcon = Catalog[i].displayIcon;
                 entry.prefab = Catalog[i].prefab;
-                entry.isArc = entry.prefab.GetComponent<ArcMesh>() != null;
+                if (entry.prefab)
+                    entry.isArc = entry.prefab.GetComponent<ArcMesh>() != null;
                 inventory.Add(entry);
             }
         }

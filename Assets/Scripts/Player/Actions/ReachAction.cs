@@ -13,7 +13,7 @@ public class ReachAction : GLMonoBehaviour, IAction {
 
 	protected void Start() {
 		player = GameObject.FindGameObjectWithTag(TagsAndLayers.PLAYER);
-        characterController = player.GetComponent<PolarCharacterController>();
+        characterController = PolarCharacterController.Instance;
 	}
 
 	void OnTriggerEnter2D(Collider2D other)

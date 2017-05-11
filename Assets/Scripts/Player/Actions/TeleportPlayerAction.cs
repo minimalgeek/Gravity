@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using DG.Tweening;
 
-public class TeleportPlayerAction : BaseAction {
+public class TeleportPlayerAction : BaseActionPolar {
 
 	public TeleportPlayerAction destination;
 
@@ -22,7 +22,6 @@ public class TeleportPlayerAction : BaseAction {
 		player.transform.DOMove(transform.position, 0.5f);
 		yield return new WaitForSeconds(0.5f);
 		player.transform.position = destination.transform.position;
-        characterController.SetState(CombinedController.State.Falling);
 		characterController.SetLocalVelocity(Vector2.zero);
 		player.transform.DOScale(sc, 0.5f);
 	}

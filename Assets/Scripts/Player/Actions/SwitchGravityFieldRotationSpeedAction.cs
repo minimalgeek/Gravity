@@ -11,7 +11,7 @@ public class StateAndAnimation {
 	public AnimationClip animationClip;
 }
 
-public class SwitchGravityFieldRotationSpeedAction : BaseAction {
+public class SwitchGravityFieldRotationSpeedAction : BaseActionPolar {
 
 	private int currentIndex;
 	public bool withAcceleration = true;

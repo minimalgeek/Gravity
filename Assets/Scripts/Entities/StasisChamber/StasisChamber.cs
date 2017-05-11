@@ -25,10 +25,10 @@ public class StasisChamber : MonoBehaviour
         {
             if (other.gameObject.CompareTag(TagsAndLayers.PLAYER))
             {
-                Transform itemHoldingPoint = CombinedController.Instance.ItemHoldingTransform;
+                Transform itemHoldingPoint = PolarCharacterController.Instance.itemHoldingPoint.transform;
                 bool hasChild = itemHoldingPoint.childCount > 0;
                 if (hasChild) {
-                    ItemPickupAction action = itemHoldingPoint.GetChild(0).GetComponent<ItemPickupAction>();
+                    ItemPickupActionOld action = itemHoldingPoint.GetChild(0).GetComponent<ItemPickupActionOld>();
                     if (action) {
                         action.ReleaseAndTurnOffPickedUpBehaviour();
                     }
